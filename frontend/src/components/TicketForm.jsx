@@ -40,48 +40,48 @@ export default function TicketForm({ onCreated }) {
   }
 
   return (
-    <section>
+    <section className="animate-pop">
       <h2 className="text-lg font-medium mb-4">Create Ticket</h2>
       <form onSubmit={submit} className="grid grid-cols-1 gap-3">
         <div className="flex flex-col">
           <label className="text-sm text-slate-700 mb-1">Title</label>
-          <input name="title" value={form.title} onChange={update} required className="border rounded px-3 py-2" />
+          <input name="title" value={form.title} onChange={update} required className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600" />
         </div>
 
         <div className="flex flex-col">
           <label className="text-sm text-slate-700 mb-1">Description</label>
-          <textarea name="description" value={form.description} onChange={update} required className="border rounded px-3 py-2 min-h-[80px]" />
+          <textarea name="description" value={form.description} onChange={update} required className="border rounded px-3 py-2 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary-600" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col">
             <label className="text-sm text-slate-700 mb-1">Category</label>
-            <input name="category" value={form.category} onChange={update} required className="border rounded px-3 py-2" />
+            <input name="category" value={form.category} onChange={update} required className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600" />
           </div>
           <div className="flex flex-col">
             <label className="text-sm text-slate-700 mb-1">Priority</label>
-            <input name="priority" value={form.priority} onChange={update} required className="border rounded px-3 py-2" />
+            <input name="priority" value={form.priority} onChange={update} required className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600" />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col">
             <label className="text-sm text-slate-700 mb-1">Resource ID (optional)</label>
-            <input name="resourceId" value={form.resourceId} onChange={update} className="border rounded px-3 py-2" />
+            <input name="resourceId" value={form.resourceId} onChange={update} className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600" />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm text-slate-700 mb-1">User ID</label>
-            <input name="userId" value={form.userId} onChange={update} required className="border rounded px-3 py-2" />
+              <label className="text-sm text-slate-700 mb-1">User ID</label>
+              <input name="userId" value={form.userId} onChange={update} required className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600" />
           </div>
         </div>
 
         <div className="flex flex-col">
           <label className="text-sm text-slate-700 mb-1">Image (optional)</label>
-          <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+          <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="text-sm" />
         </div>
 
         <div className="mt-3">
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded">
+          <button type="submit" disabled={loading} className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transform hover:-translate-y-0.5 transition">
             {loading ? 'Saving…' : 'Create'}
           </button>
         </div>
