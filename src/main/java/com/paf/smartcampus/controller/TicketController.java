@@ -54,13 +54,13 @@ public class TicketController {
                status.equals("CLOSED");
     }
 
-    @PostMapping("/{id}/uploads")
+    @PostMapping("/{id}/upload")
 public String uploadImage(@PathVariable String id,
                           @RequestParam("file") MultipartFile file) {
 
     try {
         // folder to save images
-        String uploadDir = "uploads/";
+        String uploadDir = System.getProperty("user.dir") + "/uploads/";
 
         File dir = new File(uploadDir);
         if (!dir.exists()) {
