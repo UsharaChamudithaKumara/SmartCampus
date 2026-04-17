@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { fetchTickets } from '../api'
+import { RefreshCw, Image as ImageIcon, Ticket as TicketIcon } from 'lucide-react'
 
-export default function TicketList() {
+export function TicketList({ refreshKey = 0 }) {
   const [tickets, setTickets] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [localRefresh, setLocalRefresh] = useState(0)
 
   async function load() {
     setLoading(true)
@@ -13,129 +16,175 @@ export default function TicketList() {
       const data = await fetchTickets()
       setTickets(data)
     } catch (e) {
-      setError(e.message)
+      setError(e?.message || 'Failed to load tickets')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [refreshKey, localRefresh])
 
-  function statusBadge(s) {
-    const map = {
-      OPEN: 'bg-yellow-100 text-yellow-800',
-      IN_PROGRESS: 'bg-blue-100 text-blue-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      CLOSED: 'bg-gray-200 text-gray-700'
+  function StatusBadge({ status }) {
+    const styles = {
+      OPEN: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      IN_PROGRESS: 'bg-blue-100 text-blue-800 border-blue-200',
+      RESOLVED: 'bg-green-100 text-green-800 border-green-200',
+      CLOSED: 'bg-slate-100 text-slate-700 border-slate-200',
     }
+    const style = styles[status] || styles.CLOSED
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${map[s]}`}>
-        {s?.replace('_', ' ')}
-      </span>
+      <motion.span
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+        className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${style}`}
+      >
+        {status?.replace('_', ' ')}
+      </motion.span>
     )
   }
 
+  function PriorityBadge({ priority }) {
+    const styles = {
+      LOW: 'text-green-700 bg-green-50 border-green-200',
+      MEDIUM: 'text-amber-700 bg-amber-50 border-amber-200',
+      HIGH: 'text-orange-700 bg-orange-50 border-orange-200',
+      URGENT: 'text-red-700 bg-red-50 border-red-200',
+    }
+    const style = styles[priority] || styles.LOW
+    return (
+      <motion.span
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 25, delay: 0.1 }}
+        className={`px-2.5 py-1 rounded text-xs font-semibold border ${style}`}
+      >
+        {priority}
+      </motion.span>
+    )
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.98 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+  }
+
+  const SkeletonRow = () => (
+    <tr className="border-b border-slate-100">
+      <td className="px-6 py-5">
+        <div className="flex flex-col space-y-2">
+          <div className="h-4 bg-slate-200 rounded w-3/4 animate-pulse"></div>
+          <div className="h-3 bg-slate-100 rounded w-1/2 animate-pulse"></div>
+        </div>
+      </td>
+      <td className="px-6 py-5">
+        <div className="h-4 bg-slate-200 rounded w-20 animate-pulse"></div>
+      </td>
+      <td className="px-6 py-5">
+        <div className="h-6 bg-slate-200 rounded-md w-16 animate-pulse"></div>
+      </td>
+      <td className="px-6 py-5">
+        <div className="h-6 bg-slate-200 rounded-full w-24 animate-pulse"></div>
+      </td>
+      <td className="px-6 py-5 text-center">
+        <div className="h-10 w-10 bg-slate-200 rounded-lg mx-auto animate-pulse"></div>
+      </td>
+    </tr>
+  )
+
   return (
-    <section className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }} className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white z-20">
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+            <TicketIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Active Tickets</h2>
+            <p className="text-sm text-slate-500 font-medium">Manage and track support requests</p>
+          </div>
+        </div>
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">🎫 Tickets</h2>
-
-        <button
-          onClick={load}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-        >
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }} onClick={() => setLocalRefresh(r => r + 1)} disabled={loading} className="flex items-center px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 transition-all shadow-sm">
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin text-blue-600' : ''}`} />
           Refresh
-        </button>
+        </motion.button>
       </div>
 
-      {/* LOADING */}
-      {loading && (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      )}
+      <div className="flex-1 overflow-auto relative min-h-[500px]">
+        {error && !loading && (
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center justify-center h-full p-12">
+            <div className="text-center max-w-sm">
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <RefreshCw className="w-8 h-8" />
+              </div>
+              <p className="text-red-600 font-semibold text-lg mb-2">{error}</p>
+              <p className="text-slate-500 text-sm mb-6">There was a problem communicating with the server.</p>
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setLocalRefresh(r => r + 1)} className="px-6 py-2.5 bg-red-50 text-red-700 font-semibold rounded-xl hover:bg-red-100 transition-colors">Try again</motion.button>
+            </div>
+          </motion.div>
+        )}
 
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-500 text-sm text-center">{error}</p>
-      )}
+        {!loading && !error && tickets.length === 0 && (
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center justify-center h-full p-12">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-5">
+                <TicketIcon className="w-10 h-10" />
+              </div>
+              <h3 className="text-slate-900 font-bold text-xl mb-2">No tickets found</h3>
+              <p className="text-slate-500">Create a new ticket to get started.</p>
+            </div>
+          </motion.div>
+        )}
 
-      {/* EMPTY */}
-      {!loading && tickets.length === 0 && (
-        <p className="text-center text-gray-500">No tickets found</p>
-      )}
-
-      {/* TABLE */}
-      {tickets.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-y-2">
-
-            <thead>
-              <tr className="text-left text-gray-600 text-sm">
-                <th className="px-4">Title</th>
-                <th className="px-4">Category</th>
-                <th className="px-4">Priority</th>
-                <th className="px-4">Status</th>
-                <th className="px-4">User</th>
-                <th className="px-4">Image</th>
+        {!error && (tickets.length > 0 || loading) && (
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10 border-b border-slate-200">
+              <tr className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4">Ticket Details</th>
+                <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Priority</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-center">Attachment</th>
               </tr>
             </thead>
 
-            <tbody>
-              {tickets.map((t, i) => (
-                <tr
-                  key={t.id}
-                  className="bg-gray-50 hover:bg-blue-50 transition duration-300 rounded-lg shadow-sm"
-                  style={{
-                    animation: `fadeIn 0.4s ease forwards`,
-                    animationDelay: `${i * 0.05}s`
-                  }}
-                >
-                  <td className="px-4 py-3 font-medium text-gray-800">{t.title}</td>
-                  <td className="px-4 py-3 text-gray-600">{t.category}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-1 bg-gray-200 rounded text-xs">
-                      {t.priority}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">{statusBadge(t.status)}</td>
-                  <td className="px-4 py-3 text-gray-600">{t.userId}</td>
-
-                  <td className="px-4 py-3">
-                    {t.imageUrl ? (
-                      <img
-                        src={`http://localhost:8080/${t.imageUrl}`}
-                        alt="ticket"
-                        className="w-12 h-12 object-cover rounded-lg border hover:scale-110 transition"
-                      />
+            {loading ? (
+              <tbody className="divide-y divide-slate-100">{[1,2,3,4,5].map(i => <SkeletonRow key={i} />)}</tbody>
+            ) : (
+              <motion.tbody variants={containerVariants} initial="hidden" animate="show" className="divide-y divide-slate-100">
+                {tickets.map(t => (
+                  <motion.tr key={t.id} variants={itemVariants} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">{t.title}</span>
+                        <span className="text-xs font-medium text-slate-500 mt-1">ID: #{t.id} • User: {t.userId}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4"><span className="text-sm font-medium text-slate-600">{t.category}</span></td>
+                    <td className="px-6 py-4"><PriorityBadge priority={t.priority} /></td>
+                    <td className="px-6 py-4"><StatusBadge status={t.status} /></td>
+                    <td className="px-6 py-4 text-center">{t.imageUrl ? (
+                      <motion.div whileHover={{ scale: 1.1, rotate: 2 }} className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden cursor-pointer shadow-sm">
+                        <img src={t.imageUrl} alt="Attachment" className="w-full h-full object-cover" />
+                      </motion.div>
                     ) : (
-                      <span className="text-gray-400">No Image</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 text-slate-300"><ImageIcon className="w-4 h-4" /></div>
+                    )}</td>
+                  </motion.tr>
+                ))}
+              </motion.tbody>
+            )}
           </table>
-        </div>
-      )}
-
-      {/* ANIMATION STYLE */}
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-
-    </section>
+        )}
+      </div>
+    </motion.section>
   )
 }
+
+export default TicketList

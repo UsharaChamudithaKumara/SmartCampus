@@ -1,82 +1,147 @@
-import { useState, useEffect } from 'react'
-import TicketList from './components/TicketList'
-import TicketForm from './components/TicketForm'
+import React from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { LayoutDashboard, Bell, Search, UserCircle } from "lucide-react";
 
-function App() {
-  const [view, setView] = useState('list') // 'list' | 'create'
+import TicketsPage from "./pages/TicketsPage";
+import CreateTicketPage from "./pages/CreateTicketPage";
 
-  // open create view if ?view=create in URL
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('view') === 'create') setView('create')
-    } catch (e) {}
-  }, [])
+// NAVIGATION
+function Navigation() {
+  const location = useLocation();
+
+  const navItems = [
+    { path: "/", label: "Tickets" },
+    { path: "/create", label: "Create Ticket" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-neutral-900">
-      <div className="max-w-6xl mx-auto p-6 animate-fade-in">
-        <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-md bg-primary-600 flex items-center justify-center text-white font-bold shadow">SC</div>
-            <div>
-              <h1 className="text-2xl font-semibold">SmartCampus</h1>
-              <p className="text-sm text-slate-500">Ticketing & Facilities</p>
-            </div>
-          </div>
+    <nav className="flex space-x-2 sm:space-x-4">
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.path;
 
-          <nav className="flex items-center gap-3">
-            <button className="px-3 py-1 bg-white border rounded shadow-sm text-sm hover:shadow-md transition" onClick={() => setView('list')}>View Tickets</button>
-            <button className="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700 transform hover:-translate-y-0.5 transition" onClick={() => setView('create')}>Create Ticket</button>
-          </nav>
-        </header>
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`relative px-3 py-2 text-sm font-medium rounded-md ${
+              isActive
+                ? "text-blue-600"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            {item.label}
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="lg:col-span-2 bg-white rounded-lg shadow p-6 animate-pop">
-            {view === 'list' ? <TicketList /> : <TicketForm onCreated={() => setView('list')} />}
-          </section>
-
-          <aside className="hidden lg:block bg-white rounded-lg shadow p-6 animate-fade-in">
-            <h3 className="text-lg font-medium mb-3">Overview</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-slate-500">Open</div>
-                  <div className="text-xl font-semibold">12</div>
-                </div>
-                <div className="text-primary-600 text-2xl font-bold">↗</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-slate-500">In Progress</div>
-                  <div className="text-xl font-semibold">4</div>
-                </div>
-                <div className="text-amber-500 text-2xl font-bold">→</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-slate-500">Resolved</div>
-                  <div className="text-xl font-semibold">32</div>
-                </div>
-                <div className="text-success text-2xl font-bold">✔</div>
-              </div>
-            </div>
-          </aside>
-        </main>
-
-        {/* Persistent floating create button */}
-        <button
-          aria-label="Create ticket"
-          onClick={() => setView('create')}
-          className="fixed right-6 bottom-6 z-50 w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg flex items-center justify-center text-2xl hover:bg-primary-700 transform hover:-translate-y-1 transition"
-        >
-          +
-        </button>
-
-        <footer className="mt-6 text-sm text-slate-500">Frontend demo connecting to `/api/tickets`</footer>
-      </div>
-    </div>
-  )
+            {isActive && (
+              <motion.div
+                layoutId="nav-indicator"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+              />
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 }
 
-export default App
+// ROUTES WITH ANIMATION
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TicketsPage />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/create"
+          element={
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CreateTicketPage />
+            </motion.div>
+          }
+        />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+// MAIN APP
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        {/* HEADER */}
+        <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+            {/* LEFT */}
+            <div className="flex items-center space-x-6">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <LayoutDashboard className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-bold hidden sm:block">
+                  Ticket Manager
+                </span>
+              </Link>
+
+              <Navigation />
+            </div>
+
+            {/* RIGHT */}
+            <div className="flex items-center space-x-3">
+              {/* SEARCH */}
+              <div className="hidden md:block relative">
+                <Search className="w-4 h-4 absolute left-2 top-2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="pl-7 pr-3 py-1 text-sm border rounded-full"
+                />
+              </div>
+
+              {/* NOTIFICATION */}
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <Bell className="w-5 h-5" />
+              </button>
+
+              {/* USER */}
+              <button className="p-1">
+                <UserCircle className="w-7 h-7 text-gray-400" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* MAIN */}
+        <main className="flex-1">
+          <AnimatedRoutes />
+        </main>
+      </div>
+    </BrowserRouter>
+  );
+}
