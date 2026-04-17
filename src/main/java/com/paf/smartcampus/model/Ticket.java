@@ -3,6 +3,9 @@ package com.paf.smartcampus.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 @Document(collection = "tickets")
@@ -11,15 +14,26 @@ public class Ticket {
     @Id
     private String id;
 
+    @NotBlank(message = "Title is required")
     private String title;
+
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @NotBlank(message = "Category is required")
     private String category;
+
+    @NotBlank(message = "Priority is required")
     private String priority;
 
     private String resourceId;
+
+    private String imageUrl;
+
+    @NotBlank(message = "User ID is required")
     private String userId;
 
-    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED, REJECTED
+    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
 
     private String assignedTo; // technician
 
@@ -28,6 +42,14 @@ public class Ticket {
     public Ticket() {}
 
     // GETTERS & SETTERS
+
+    public String getImageUrl() {
+    return imageUrl;
+}
+
+public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+}
 
     public String getId() {
         return id;
