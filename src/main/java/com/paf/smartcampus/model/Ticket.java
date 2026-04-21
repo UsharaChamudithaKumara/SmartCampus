@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -28,28 +27,23 @@ public class Ticket {
 
     private String resourceId;
 
-    private String imageUrl;
+    // Support multiple images (accessible URLs)
+    private List<String> imageUrls;
 
     @NotBlank(message = "User ID is required")
     private String userId;
 
-    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED, REJECTED
 
     private String assignedTo; // technician
 
-    private List<String> comments;
+    private String rejectedReason;
+
+    private String resolutionNotes;
+
+    private List<Comment> comments;
 
     public Ticket() {}
-
-    // GETTERS & SETTERS
-
-    public String getImageUrl() {
-    return imageUrl;
-}
-
-public void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
-}
 
     public String getId() {
         return id;
@@ -99,6 +93,14 @@ public void setImageUrl(String imageUrl) {
         this.resourceId = resourceId;
     }
 
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -123,11 +125,27 @@ public void setImageUrl(String imageUrl) {
         this.assignedTo = assignedTo;
     }
 
-    public List<String> getComments() {
+    public String getRejectedReason() {
+        return rejectedReason;
+    }
+
+    public void setRejectedReason(String rejectedReason) {
+        this.rejectedReason = rejectedReason;
+    }
+
+    public String getResolutionNotes() {
+        return resolutionNotes;
+    }
+
+    public void setResolutionNotes(String resolutionNotes) {
+        this.resolutionNotes = resolutionNotes;
+    }
+
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(List<String> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 }

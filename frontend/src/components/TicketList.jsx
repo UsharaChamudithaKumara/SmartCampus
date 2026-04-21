@@ -169,9 +169,9 @@ export function TicketList({ refreshKey = 0 }) {
                     <td className="px-6 py-4"><span className="text-sm font-medium text-slate-600">{t.category}</span></td>
                     <td className="px-6 py-4"><PriorityBadge priority={t.priority} /></td>
                     <td className="px-6 py-4"><StatusBadge status={t.status} /></td>
-                    <td className="px-6 py-4 text-center">{t.imageUrl ? (
+                    <td className="px-6 py-4 text-center">{(t.imageUrl || (t.imageUrls && t.imageUrls.length > 0)) ? (
                       <motion.div whileHover={{ scale: 1.1, rotate: 2 }} className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden cursor-pointer shadow-sm">
-                        <img src={t.imageUrl} alt="Attachment" className="w-full h-full object-cover" />
+                        <img src={t.imageUrl ? t.imageUrl : t.imageUrls[0]} alt="Attachment" className="w-full h-full object-cover" />
                       </motion.div>
                     ) : (
                       <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 text-slate-300"><ImageIcon className="w-4 h-4" /></div>
