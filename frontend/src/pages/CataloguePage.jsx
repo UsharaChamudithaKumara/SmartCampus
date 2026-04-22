@@ -80,8 +80,9 @@ const CataloguePage = () => {
                     <h3 className="font-bold text-slate-800 mb-6">By Location</h3>
                     <div className="space-y-4">
                         <LocationItem label="Main Building" count={resources.filter(r => r.location?.includes('Main')).length} />
-                        <LocationItem label="FOC Building" count={resources.filter(r => r.location?.includes('FOC')).length} />
+                        <LocationItem label="New Building" count={resources.filter(r => r.location?.includes('New')).length} />
                         <LocationItem label="Library" count={resources.filter(r => r.location?.includes('Library')).length} />
+
                         <LocationItem label="Engineering Building" count={resources.filter(r => r.location?.includes('Engineering')).length} />
                         <LocationItem label="Block B/C" count={resources.filter(r => r.location?.includes('Block')).length} />
                     </div>

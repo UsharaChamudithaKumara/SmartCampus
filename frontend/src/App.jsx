@@ -8,6 +8,7 @@ import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import CataloguePage from "./pages/CataloguePage"; 
 import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+import ResourceForm from "./components/ResourceForm";
 
 // NAVIGATION COMPONENT
 function Navigation() {
@@ -91,6 +92,7 @@ export default function App() {
               <Route path="/create" element={<CreateTicketPage />} />
               <Route path="/catalogue" element={<CataloguePage />} />
               <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
+              <Route path="/resource-form" element={<ResourceForm />} />
             </Routes>
           </AnimatePresence>
         </main>

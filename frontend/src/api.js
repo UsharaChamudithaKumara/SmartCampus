@@ -54,7 +54,7 @@ export async function createResource(resource) {
 // Meets requirement for updating status/metadata (PUT) [cite: 25, 69]
 // src/api.js
 export async function updateResource(id, resource) {
-  const res = await fetch(`http://localhost:8081/api/resources/${id}`, {
+  const res = await fetch(`http://localhost:8082/api/resources/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(resource),
