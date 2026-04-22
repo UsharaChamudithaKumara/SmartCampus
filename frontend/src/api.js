@@ -228,7 +228,7 @@ export async function updateResource(id, resource) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(resource),
   });
-  return parseResponseOrThrow(res, 'Failed to update status');
+  return parseResponseOrThrow(res, 'Failed to update resource');
 }
 
 export async function deleteResource(id) {
@@ -236,7 +236,7 @@ export async function deleteResource(id) {
     method: 'DELETE',
   });
   await parseResponseOrThrow(res, 'Failed to delete resource');
-  return true;
+  return true;      
 }
 
 const api = {

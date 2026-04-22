@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import { fetchResources } from '../api';
-import { Search, MapPin, Users, Clock } from 'lucide-react';
+import { Search, MapPin, Users, Clock, ArrowLeft } from 'lucide-react'; // 2. Import ArrowLeft icon
 
 const ViewCataloguePage = () => {
     const [resources, setResources] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filters, setFilters] = useState({ type: '', status: '', location: '', minCapacity: '' });
+    
+    const navigate = useNavigate(); // 3. Initialize navigate
 
     useEffect(() => {
         const load = async () => {
@@ -19,19 +22,13 @@ const ViewCataloguePage = () => {
         load();
     }, []);
 
-    // IMPROVED FILTER LOGIC
     const filteredItems = resources.filter(res => {
         const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = !filters.type || res.type === filters.type;
         const matchesStatus = !filters.status || res.status === filters.status;
-        
-        // Location Filter: Case-insensitive partial match
-        // This ensures "Building A" matches "Building A, Floor 2"
         const resourceLocation = res.location ? res.location.toLowerCase() : "";
         const filterLocation = filters.location.toLowerCase();
         const matchesLocation = !filters.location || resourceLocation.includes(filterLocation);
-        
-        // Capacity Filter
         const matchesCapacity = !filters.minCapacity || res.capacity >= parseInt(filters.minCapacity);
 
         return matchesSearch && matchesType && matchesStatus && matchesLocation && matchesCapacity;
@@ -39,8 +36,22 @@ const ViewCataloguePage = () => {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 px-4">
+            
+            {/* 4. Top Back Button Section */}
+            <div className="pt-6">
+                <button 
+                    onClick={() => navigate(-1)} // Navigates to the previous page
+                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-semibold text-sm transition-colors group"
+                >
+                    <div className="p-2 rounded-lg bg-white border border-slate-200 group-hover:border-slate-300 shadow-sm transition-all">
+                        <ArrowLeft className="w-4 h-4" />
+                    </div>
+                    Back to Dashboard
+                </button>
+            </div>
+
             {/* Header Section */}
-            <div className="pt-8">
+            <div>
                 <h1 className="text-3xl font-bold text-slate-900">Catalogue</h1>
                 <p className="text-slate-500 mt-1">Browse all bookable facilities, labs, rooms, and equipment.</p>
             </div>
@@ -58,7 +69,6 @@ const ViewCataloguePage = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Type Filter */}
                     <select 
                         className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-sm outline-none cursor-pointer"
                         value={filters.type}
@@ -71,7 +81,6 @@ const ViewCataloguePage = () => {
                         <option value="Equipment">Equipment</option>
                     </select>
 
-                    {/* Status Filter */}
                     <select 
                         className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-sm outline-none cursor-pointer"
                         value={filters.status}
@@ -82,7 +91,6 @@ const ViewCataloguePage = () => {
                         <option value="OUT_OF_SERVICE">Out of Service</option>
                     </select>
 
-                    {/* Location Filter - Matching your Postman Data */}
                     <select 
                         className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-sm outline-none cursor-pointer"
                         value={filters.location}
@@ -96,7 +104,6 @@ const ViewCataloguePage = () => {
                         <option value="Library">Library</option>
                     </select>
 
-                    {/* Capacity Filter */}
                     <input 
                         type="number" 
                         placeholder="Min capacity" 
@@ -117,7 +124,6 @@ const ViewCataloguePage = () => {
                 ))}
             </div>
             
-            {/* Empty State */}
             {filteredItems.length === 0 && (
                 <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                     <p className="text-slate-400 font-medium">No resources match your current selection.</p>
@@ -127,7 +133,7 @@ const ViewCataloguePage = () => {
     );
 };
 
-// Card Component using data from your API
+// Card Component remains the same...
 const ResourceCard = ({ item }) => (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden group">
         <div className="p-6 space-y-4">

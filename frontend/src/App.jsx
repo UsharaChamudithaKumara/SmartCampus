@@ -15,11 +15,20 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
+
+import CataloguePage from "./pages/CataloguePage"; 
+import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+import ResourceForm from "./components/ResourceForm";
+
+import AdminResourceList from "./components/ManageResourcesPage";
+import ManageResourcesPage from "./components/ManageResourcesPage";
+
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
+
 
 function Navigation({ userRole }) {
   const location = useLocation();
@@ -136,9 +145,25 @@ function AppShell({ userEmail, userRole, onLogout }) {
             </div>
           </div>
 
+
+        {/* CONTENT ROUTES */}
+        <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<TicketsPage />} />
+              <Route path="/create" element={<CreateTicketPage />} />
+              <Route path="/catalogue" element={<CataloguePage />} />
+              <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
+              <Route path="/resource-form" element={<ResourceForm />} />
+              <Route path="/resource-list" element={<ManageResourcesPage />} />
+            </Routes>
+          </AnimatePresence>
+        </main>
+
           <Navigation userRole={userRole} />
         </div>
       </header>
+
 
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
         <Routes>
