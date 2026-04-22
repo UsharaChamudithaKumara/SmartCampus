@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import TicketList from "../components/TicketList";
 import { Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
-import { fetchTickets } from "../api";
+import { fetchVisibleTickets } from "../api";
 
 // Animated Counter Component
 const AnimatedCounter = ({ value }) => {
@@ -31,12 +31,14 @@ const AnimatedCounter = ({ value }) => {
 
 export default function TicketsPage() {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem("userRole");
+  const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
 
   const [stats, setStats] = useState({ total: 0, open: 0, inProgress: 0, resolved: 0 })
 
   async function loadStats() {
     try {
-      const data = await fetchTickets()
+      const data = await fetchVisibleTickets()
       const total = data.length
       const open = data.filter(t => t.status === 'OPEN').length
       const inProgress = data.filter(t => t.status === 'IN_PROGRESS').length
@@ -76,7 +78,7 @@ export default function TicketsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight"
           >
-            Dashboard
+            {isStaff ? (userRole === "ADMIN" ? "Admin Ticket Management" : "Staff Ticket Management") : "Ticket Management"}
           </motion.h1>
 
           <motion.p
@@ -85,7 +87,9 @@ export default function TicketsPage() {
             transition={{ delay: 0.1 }}
             className="text-slate-500 mt-1"
           >
-            Overview of your support tickets
+            {isStaff
+              ? "Assign technicians, update workflow status, and review comments for maintenance and incidents"
+              : "Monitor and manage all maintenance and incident tickets"}
           </motion.p>
         </div>
 
@@ -114,7 +118,7 @@ export default function TicketsPage() {
           />
 
           <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
-          Create Ticket
+          {isStaff ? "Create Incident" : "Create Ticket"}
         </motion.button>
       </div>
 

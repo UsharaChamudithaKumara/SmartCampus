@@ -5,7 +5,8 @@
   page.on('console', msg => console.log('PAGE_CONSOLE', msg.type(), msg.text()));
   page.on('pageerror', err => console.log('PAGE_ERROR', err.message));
 
-  const url = 'http://localhost:5175/create';
+  // Dev server port — update if Vite reports a different port
+  const url = 'http://localhost:5176/create';
   console.log('Opening', url);
   await page.goto(url, { waitUntil: 'load', timeout: 60000 }).catch(e => console.log('GOTO_ERR', e.message));
   await page.waitForTimeout(1000);
