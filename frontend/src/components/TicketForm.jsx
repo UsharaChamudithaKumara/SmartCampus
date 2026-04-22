@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TicketForm({ onCreated }) {
   const navigate = useNavigate();
+  const currentUserId = localStorage.getItem("userEmail") || "";
 
   const [form, setForm] = useState({
     title: "",
@@ -19,7 +20,11 @@ export default function TicketForm({ onCreated }) {
     category: "Bug",
     priority: "MEDIUM",
     resourceId: "",
-    userId: "",
+    location: "",
+    preferredContactName: "",
+    preferredContactEmail: currentUserId,
+    preferredContactPhone: "",
+    userId: currentUserId,
   });
 
   const [files, setFiles] = useState([]);
@@ -39,8 +44,17 @@ export default function TicketForm({ onCreated }) {
     setLoading(true);
     setStatus(null);
 
+    if (!currentUserId) {
+      setStatus({
+        type: "error",
+        message: "Session expired. Please log in again.",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
-      const created = await createTicket(form);
+      const created = await createTicket({ ...form, userId: currentUserId });
 
       if (files && files.length > 0) {
         await uploadImages(created.id, files);
@@ -209,8 +223,53 @@ export default function TicketForm({ onCreated }) {
                   <input name="resourceId" value={form.resourceId} onChange={update} className="w-full border rounded-xl px-4 py-2.5" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-700">User ID</label>
-                  <input name="userId" value={form.userId} onChange={update} required className="w-full border rounded-xl px-4 py-2.5" />
+                  <label className="text-sm font-semibold text-slate-700">Submitted By</label>
+                  <input value={currentUserId || "Not signed in"} readOnly className="w-full border rounded-xl px-4 py-2.5 bg-slate-50 text-slate-600" />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Location</label>
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={update}
+                    placeholder="e.g. Library - Level 2"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Name</label>
+                  <input
+                    name="preferredContactName"
+                    value={form.preferredContactName}
+                    onChange={update}
+                    placeholder="Optional"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Email</label>
+                  <input
+                    name="preferredContactEmail"
+                    value={form.preferredContactEmail}
+                    onChange={update}
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Phone</label>
+                  <input
+                    name="preferredContactPhone"
+                    value={form.preferredContactPhone}
+                    onChange={update}
+                    placeholder="Optional"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
                 </div>
               </motion.div>
 

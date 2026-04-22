@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2, Users, BookOpen, Wrench, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2, Shield, Wrench, ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
 import GoogleSignInButton from "../components/GoogleSignInButton";
@@ -15,7 +15,7 @@ const TECHNICIAN_TYPES = [
   { value: "GENERAL", label: "General Maintenance" },
 ];
 
-export default function LoginPage({ onLoginSuccess }) {
+export default function AdminLoginPage({ onLoginSuccess }) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -23,14 +23,12 @@ export default function LoginPage({ onLoginSuccess }) {
   const [status, setStatus] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedTechType, setSelectedTechType] = useState(null);
-  const [form, setForm] = useState({
-    studentEmail: "",
-    password: "",
-  });
+
+  const [form, setForm] = useState({ studentEmail: "", password: "" });
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleLogin(e) {
@@ -39,24 +37,23 @@ export default function LoginPage({ onLoginSuccess }) {
     setStatus(null);
 
     try {
-      const data = await login(form.studentEmail, form.password, selectedRole, selectedTechType);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.studentEmail);
-      localStorage.setItem('userName', `${data.firstName} ${data.lastName}`);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      const role = selectedRole === 'TECHNICIAN' ? 'TECHNICIAN' : 'ADMIN';
+      const data = await login(form.studentEmail, form.password, role, selectedTechType);
 
-      if (onLoginSuccess) {
-        onLoginSuccess(data.studentEmail);
-      }
-      
-      setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userEmail", data.studentEmail);
+      localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+      localStorage.setItem("userRole", data.role);
+      localStorage.setItem("isLoggedIn", "true");
+
+      if (onLoginSuccess) onLoginSuccess(data.studentEmail);
+
+      setStatus({ type: "success", message: "Login successful. Redirecting..." });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        navigate(data.role === "ADMIN" ? "/admin" : "/dashboard", { replace: true });
       }, 1000);
     } catch (err) {
-      setStatus({ type: 'error', message: err.message || 'Login failed. Please try again.' });
+      setStatus({ type: "error", message: err.message || "Login failed. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -67,24 +64,23 @@ export default function LoginPage({ onLoginSuccess }) {
     setStatus(null);
 
     try {
-      const data = await googleLogin(credential, null);
+      const role = selectedRole === 'TECHNICIAN' ? 'TECHNICIAN' : 'ADMIN';
+      const data = await googleLogin(credential, role, selectedTechType);
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.studentEmail);
-      localStorage.setItem('userName', `${data.firstName} ${data.lastName}`);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userEmail", data.studentEmail);
+      localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+      localStorage.setItem("userRole", data.role);
+      localStorage.setItem("isLoggedIn", "true");
 
-      if (onLoginSuccess) {
-        onLoginSuccess(data.studentEmail);
-      }
+      if (onLoginSuccess) onLoginSuccess(data.studentEmail);
 
-      setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
+      setStatus({ type: "success", message: "Google login successful. Redirecting..." });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        navigate(data.role === "ADMIN" ? "/admin" : "/dashboard", { replace: true });
       }, 1000);
     } catch (err) {
-      setStatus({ type: 'error', message: err.message || 'Google login failed. Please try again.' });
+      setStatus({ type: "error", message: err.message || "Google login failed. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -105,7 +101,6 @@ export default function LoginPage({ onLoginSuccess }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
-      {/* Floating background elements */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
       <div className="absolute -bottom-8 right-10 w-72 h-72 bg-cyan-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
       <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
@@ -116,7 +111,6 @@ export default function LoginPage({ onLoginSuccess }) {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-md"
       >
-        {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -134,11 +128,10 @@ export default function LoginPage({ onLoginSuccess }) {
             SmartCampus
           </motion.h1>
           <motion.p variants={itemVariants} className="text-slate-500 mt-2">
-            Login to access your account
+            Admin & Technician Access
           </motion.p>
         </motion.div>
 
-        {/* Login Card */}
         <motion.div
           variants={itemVariants}
           className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 backdrop-blur-sm"
@@ -152,10 +145,9 @@ export default function LoginPage({ onLoginSuccess }) {
               Select Your Role
             </motion.h2>
 
-            <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3 mb-6">
+            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
               {[
-                { role: "STUDENT", label: "Student", icon: Users },
-                { role: "LECTURER", label: "Lecturer", icon: BookOpen },
+                { role: "ADMIN", label: "Admin", icon: Shield },
                 { role: "TECHNICIAN", label: "Technician", icon: Wrench },
               ].map(({ role, label, icon: Icon }) => (
                 <button
@@ -174,7 +166,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   <Icon className="w-5 h-5 mx-auto mb-1" />
                   {label}
                 </button>
-              ))}
+              ))}  
             </motion.div>
 
             {selectedRole === "TECHNICIAN" && (
@@ -199,6 +191,8 @@ export default function LoginPage({ onLoginSuccess }) {
               </motion.div>
             )}
 
+
+
             {selectedRole && (selectedRole !== "TECHNICIAN" || selectedTechType) && (
               <>
                 <motion.button
@@ -222,18 +216,15 @@ export default function LoginPage({ onLoginSuccess }) {
                   <div className="mt-3">
                     <GoogleSignInButton
                       clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-                      onCredential={(credential) => handleGoogleLogin(credential)}
+                      onCredential={handleGoogleLogin}
                       width={360}
                     />
                   </div>
                 </motion.div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
-                  {/* Email Input */}
                   <motion.div variants={itemVariants}>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Email
-                    </label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
                       <input
@@ -248,7 +239,6 @@ export default function LoginPage({ onLoginSuccess }) {
                     </div>
                   </motion.div>
 
-                  {/* Password Input */}
                   <motion.div variants={itemVariants}>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
                     <div className="relative">
@@ -276,7 +266,6 @@ export default function LoginPage({ onLoginSuccess }) {
                     </div>
                   </motion.div>
 
-                  {/* Forgot Password Link */}
                   <motion.div variants={itemVariants} className="flex justify-end">
                     <button
                       type="button"
@@ -287,7 +276,6 @@ export default function LoginPage({ onLoginSuccess }) {
                     </button>
                   </motion.div>
 
-                  {/* Status Messages */}
                   <AnimatePresence>
                     {status && (
                       <motion.div
@@ -310,7 +298,6 @@ export default function LoginPage({ onLoginSuccess }) {
                     )}
                   </AnimatePresence>
 
-                  {/* Login Button */}
                   <motion.button
                     variants={itemVariants}
                     type="submit"
@@ -333,26 +320,14 @@ export default function LoginPage({ onLoginSuccess }) {
                   </motion.button>
                 </form>
 
-                <motion.div variants={itemVariants} className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                  <p className="text-sm text-slate-600">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
-                      Create one now
-                    </Link>
-                  </p>
-                </motion.div>
+
               </>
             )}
 
-            {!selectedRole && (
-              <motion.div variants={itemVariants} className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-center text-sm text-slate-600">
-                <p>Select your role above to continue</p>
-              </motion.div>
-            )}
+
           </motion.div>
         </motion.div>
 
-        {/* Footer */}
         <motion.div variants={itemVariants} className="text-center mt-6 text-sm text-slate-500">
           &copy; {new Date().getFullYear()} SmartCampus. All rights reserved.
         </motion.div>

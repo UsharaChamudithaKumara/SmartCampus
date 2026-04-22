@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, X } from 'lucide-react';
@@ -26,16 +26,6 @@ export default function SignupPage() {
     profilePhoto: null,
   });
 
-  // Auto-generate email when student number changes (use full value)
-  useEffect(() => {
-    const studentNumber = formData.itNumber?.trim().toUpperCase();
-    if (studentNumber && /^[A-Z]{2}\d{8}$/.test(studentNumber)) {
-      const autoEmail = studentNumber + '@my.sliit.lk';
-      setFormData(prev => ({ ...prev, studentEmail: autoEmail }));
-    } else if (!formData.itNumber) {
-      setFormData(prev => ({ ...prev, studentEmail: '' }));
-    }
-  }, [formData.itNumber]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,11 +71,8 @@ export default function SignupPage() {
         }
         break;
       case 'studentEmail':
-        const expectedEmail = formData.itNumber && /^[A-Za-z]{2}\d{8}$/.test(formData.itNumber)
-          ? `${formData.itNumber.trim().toUpperCase()}@my.sliit.lk`
-          : '';
-        if (!formData.studentEmail || formData.studentEmail.trim() === '') msg = '❌ Student email is required';
-        else if (expectedEmail && formData.studentEmail !== expectedEmail) msg = `❌ Email must match ${expectedEmail}`;
+        if (!formData.studentEmail || formData.studentEmail.trim() === '') msg = '❌ Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.studentEmail)) msg = '❌ Enter a valid email address';
         break;
       case 'nicNumber':
         if (!formData.nicNumber || formData.nicNumber.trim() === '') msg = '❌ NIC number is required';
@@ -171,15 +158,11 @@ export default function SignupPage() {
       newErrors.push('❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)');
     }
 
-    // Validate student email (generated from full student number)
-    const studentNumber = formData.itNumber?.trim().toUpperCase();
+    // Validate email using a normal email format
     if (!formData.studentEmail || formData.studentEmail.trim() === '') {
-      newErrors.push('❌ Student email is required');
-    } else {
-      const expectedEmail = studentNumber && /^[A-Z]{2}\d{8}$/.test(studentNumber) ? `${studentNumber}@my.sliit.lk` : null;
-      if (expectedEmail && formData.studentEmail !== expectedEmail) {
-        newErrors.push(`❌ Email must match: ${expectedEmail}`);
-      }
+      newErrors.push('❌ Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.studentEmail)) {
+      newErrors.push('❌ Enter a valid email address');
     }
 
     // Validate NIC number
@@ -242,7 +225,7 @@ export default function SignupPage() {
       localStorage.setItem('isLoggedIn', 'true');
 
       setTimeout(() => {
-        navigate('/');
+        navigate(result.role === 'ADMIN' ? '/admin' : '/dashboard');
       }, 1500);
     } catch (err) {
       setErrors([err.message || 'Signup failed']);
@@ -414,22 +397,20 @@ export default function SignupPage() {
                 )}
               </motion.div>
 
-              {/* Student Email (Auto-generated, read-only) */}
+              {/* Email */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Student Email
+                  Email
                 </label>
                 <input
                   type="email"
                   name="studentEmail"
                   value={formData.studentEmail}
-                  readOnly
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-100 text-slate-600 cursor-not-allowed"
-                  placeholder="Auto-generated from Student number"
+                  onChange={handleChange}
+                  onBlur={() => validateField('studentEmail')}
+                  placeholder="name@example.com"
+                  className={fieldClassName('studentEmail')}
                 />
-                <p className="text-xs text-slate-500 mt-1">
-                  Auto-generated from your student number: {formData.studentEmail || '--------@my.sliit.lk'}
-                </p>
                 {showFieldError('studentEmail')}
               </motion.div>
 

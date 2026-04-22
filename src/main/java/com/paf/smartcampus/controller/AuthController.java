@@ -1,16 +1,23 @@
 package com.paf.smartcampus.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import com.paf.smartcampus.dto.AuthRequest;
 import com.paf.smartcampus.dto.AuthResponse;
 import com.paf.smartcampus.dto.ForgotPasswordRequest;
+import com.paf.smartcampus.dto.GoogleLoginRequest;
 import com.paf.smartcampus.dto.PasswordResetRequest;
 import com.paf.smartcampus.dto.SignupRequest;
 import com.paf.smartcampus.model.User;
@@ -25,13 +32,21 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_TECHNICIAN = "TECHNICIAN";
+    private static final String ROLE_LECTURER = "LECTURER";
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Value("${app.google.client-id:}")
+    private String googleClientId;
+
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private RestTemplate restTemplate = new RestTemplate();
 
     /**
      * SIGNUP endpoint
@@ -50,18 +65,15 @@ public class AuthController {
                 return new ErrorResponse("❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)");
             }
 
-            // Validate student email format
+            // Validate email format
             String studentEmail = request.getStudentEmail();
-            if (studentEmail != null && !studentEmail.trim().isEmpty()) {
-                // User provided custom email - validate it matches student number format
-                studentEmail = studentEmail.trim();
-                String expectedEmail = itNumber + "@my.sliit.lk";
-                if (!studentEmail.equals(expectedEmail)) {
-                    return new ErrorResponse("❌ Email must match student number format: " + expectedEmail);
-                }
-            } else {
-                // Auto-generate email from the full student number
-                studentEmail = itNumber + "@my.sliit.lk";
+            if (studentEmail == null || studentEmail.trim().isEmpty()) {
+                return new ErrorResponse("❌ Email is required");
+            }
+
+            studentEmail = studentEmail.trim();
+            if (!studentEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                return new ErrorResponse("❌ Enter a valid email address");
             }
 
             // Validate other fields
@@ -149,6 +161,28 @@ public class AuthController {
     @PostMapping("/login")
     public Object login(@Valid @RequestBody AuthRequest request) {
         try {
+            String role = request.getRole();
+            if (role == null || role.trim().isEmpty()) {
+                return new ErrorResponse("❌ Role is required (STUDENT, LECTURER, or TECHNICIAN)");
+            }
+
+            role = role.trim().toUpperCase();
+            if (!role.matches("^(STUDENT|LECTURER|TECHNICIAN)$")) {
+                return new ErrorResponse("❌ Invalid role. Must be STUDENT, LECTURER, or TECHNICIAN");
+            }
+
+            if ("TECHNICIAN".equals(role)) {
+                String techType = request.getTechnicianType();
+                if (techType == null || techType.trim().isEmpty()) {
+                    return new ErrorResponse("❌ Technician type is required for TECHNICIAN role");
+                }
+
+                techType = techType.trim().toUpperCase();
+                if (!techType.matches("^(HARDWARE|SOFTWARE|NETWORK|GENERAL)$")) {
+                    return new ErrorResponse("❌ Invalid technician type");
+                }
+            }
+
             Optional<User> user = userRepository.findByStudentEmail(request.getStudentEmail());
 
             if (!user.isPresent()) {
@@ -165,6 +199,15 @@ public class AuthController {
             if (!passwordEncoder.matches(request.getPassword(), foundUser.getPassword())) {
                 return new ErrorResponse("❌ Invalid password");
             }
+
+            foundUser.setRole(role);
+            if ("TECHNICIAN".equals(role)) {
+                foundUser.setTechnicianType(request.getTechnicianType().trim().toUpperCase());
+            } else {
+                foundUser.setTechnicianType(null);
+            }
+            foundUser.setUpdatedAt(new Date());
+            userRepository.save(foundUser);
 
             String token = jwtUtil.generateToken(foundUser.getStudentEmail(), foundUser.getRole());
 
@@ -183,6 +226,150 @@ public class AuthController {
         } catch (Exception e) {
             return new ErrorResponse("❌ Login failed: " + e.getMessage());
         }
+    }
+
+
+    /**
+     * GOOGLE LOGIN endpoint
+     * POST /api/auth/google-login
+     */
+    @PostMapping("/google-login")
+    public Object googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
+        try {
+            if (request.getCredential() == null || request.getCredential().trim().isEmpty()) {
+                return new ErrorResponse("❌ Google credential is required");
+            }
+
+            Map<?, ?> tokenInfo = restTemplate.getForObject(
+                    "https://oauth2.googleapis.com/tokeninfo?id_token={token}",
+                    Map.class,
+                    request.getCredential().trim()
+            );
+
+            if (tokenInfo == null) {
+                return new ErrorResponse("❌ Invalid Google token");
+            }
+
+            String audience = valueAsString(tokenInfo.get("aud"));
+            if (googleClientId != null && !googleClientId.trim().isEmpty() && !googleClientId.equals(audience)) {
+                return new ErrorResponse("❌ Google token audience mismatch");
+            }
+
+            String email = valueAsString(tokenInfo.get("email"));
+            if (email == null || email.trim().isEmpty()) {
+                return new ErrorResponse("❌ Google account email not found");
+            }
+
+            String emailVerified = valueAsString(tokenInfo.get("email_verified"));
+            if (emailVerified != null && !"true".equalsIgnoreCase(emailVerified)) {
+                return new ErrorResponse("❌ Google email is not verified");
+            }
+
+            String requestedRole = normalizeRole(request.getExpectedRole());
+            Optional<User> existingUser = userRepository.findByStudentEmail(email);
+            User user = existingUser.orElseGet(() -> createGoogleUser(tokenInfo, email, requestedRole));
+
+            if (existingUser.isPresent()) {
+                if (requestedRole != null && !requestedRole.equals(user.getRole())) {
+                    if (ROLE_LECTURER.equals(requestedRole) || ROLE_TECHNICIAN.equals(requestedRole)) {
+                        user.setRole(requestedRole);
+                        user.setUpdatedAt(new Date());
+                        userRepository.save(user);
+                    } else if (!ROLE_ADMIN.equals(user.getRole())) {
+                        return new ErrorResponse("❌ Account role mismatch");
+                    }
+                }
+            } else {
+                userRepository.save(user);
+            }
+
+            String token = jwtUtil.generateToken(user.getStudentEmail(), user.getRole());
+
+            return new AuthResponse(
+                    token,
+                    user.getStudentEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getUsername(),
+                    user.getItNumber(),
+                    user.getProfilePhoto(),
+                    user.getRole(),
+                    jwtUtil.getExpirationTime()
+            );
+        } catch (RestClientException e) {
+            return new ErrorResponse("❌ Unable to verify Google login");
+        } catch (Exception e) {
+            return new ErrorResponse("❌ Google login failed: " + e.getMessage());
+        }
+    }
+
+    private User createGoogleUser(Map<?, ?> tokenInfo, String email, String role) {
+        String firstName = defaultString(valueAsString(tokenInfo.get("given_name")), extractFirstName(email));
+        String lastName = defaultString(valueAsString(tokenInfo.get("family_name")), "User");
+        String username = makeUsername(email, role);
+        String itNumber = makeUniqueItNumber(email);
+        String nicNumber = makeUniqueNicNumber(email);
+        String profilePhoto = valueAsString(tokenInfo.get("picture"));
+
+        User user = new User();
+        user.setStudentEmail(email);
+        user.setItNumber(itNumber);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUsername(username);
+        user.setNicNumber(nicNumber);
+        user.setProfilePhoto(profilePhoto);
+        user.setRole(role == null ? ROLE_LECTURER : role);
+        user.setEnabled(true);
+        user.setCreatedAt(new Date());
+        user.setUpdatedAt(new Date());
+        return user;
+    }
+
+    private String normalizeRole(String role) {
+        if (role == null) {
+            return null;
+        }
+
+        String normalized = role.trim().toUpperCase();
+        if (ROLE_ADMIN.equals(normalized) || ROLE_TECHNICIAN.equals(normalized) || ROLE_LECTURER.equals(normalized)) {
+            return normalized;
+        }
+
+        return null;
+    }
+
+    private String makeUsername(String email, String role) {
+        String localPart = email.contains("@") ? email.substring(0, email.indexOf('@')) : email;
+        String suffix = role == null ? "google" : role.toLowerCase();
+        return (localPart + "-" + suffix).replaceAll("[^a-zA-Z0-9_-]", "");
+    }
+
+    private String makeUniqueItNumber(String email) {
+        long numeric = Math.abs(email.hashCode());
+        return String.format("GG%08d", numeric % 100000000L);
+    }
+
+    private String makeUniqueNicNumber(String email) {
+        long numeric = Math.abs((email + "nic").hashCode());
+        return String.format("99%07dV", numeric % 10000000L);
+    }
+
+    private String extractFirstName(String email) {
+        String localPart = email.contains("@") ? email.substring(0, email.indexOf('@')) : email;
+        if (localPart.isEmpty()) {
+            return "Google";
+        }
+        return Character.toUpperCase(localPart.charAt(0)) + localPart.substring(1);
+    }
+
+    private String valueAsString(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    private String defaultString(String value, String fallback) {
+        return value == null || value.trim().isEmpty() ? fallback : value;
     }
 
     /**

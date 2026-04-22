@@ -32,7 +32,9 @@ public class User {
 
     private String profilePhoto; // URL to profile photo
 
-    private String role = "USER"; // USER, TECHNICIAN, ADMIN
+    private String role = "USER"; // USER, TECHNICIAN, ADMIN, LECTURER
+
+    private String technicianType; // HARDWARE, SOFTWARE, NETWORK, GENERAL (only for TECHNICIAN role)
 
     private boolean enabled = true;
 
@@ -91,6 +93,9 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getTechnicianType() { return technicianType; }
+    public void setTechnicianType(String technicianType) { this.technicianType = technicianType; }
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }

@@ -27,6 +27,14 @@ public class Ticket {
 
     private String resourceId;
 
+    private String location;
+
+    private String preferredContactName;
+
+    private String preferredContactEmail;
+
+    private String preferredContactPhone;
+
     // Support multiple images (accessible URLs)
     private List<String> imageUrls;
 
@@ -91,6 +99,38 @@ public class Ticket {
 
     public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getPreferredContactName() {
+        return preferredContactName;
+    }
+
+    public void setPreferredContactName(String preferredContactName) {
+        this.preferredContactName = preferredContactName;
+    }
+
+    public String getPreferredContactEmail() {
+        return preferredContactEmail;
+    }
+
+    public void setPreferredContactEmail(String preferredContactEmail) {
+        this.preferredContactEmail = preferredContactEmail;
+    }
+
+    public String getPreferredContactPhone() {
+        return preferredContactPhone;
+    }
+
+    public void setPreferredContactPhone(String preferredContactPhone) {
+        this.preferredContactPhone = preferredContactPhone;
     }
 
     public List<String> getImageUrls() {

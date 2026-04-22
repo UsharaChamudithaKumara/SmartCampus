@@ -34,7 +34,18 @@ public class TicketController {
         ticket.setStatus("OPEN");
         if (ticket.getComments() == null) ticket.setComments(new ArrayList<>());
         if (ticket.getImageUrls() == null) ticket.setImageUrls(new ArrayList<>());
+        if (ticket.getPreferredContactEmail() == null || ticket.getPreferredContactEmail().isBlank()) {
+            ticket.setPreferredContactEmail(ticket.getUserId());
+        }
+        if (ticket.getPreferredContactName() == null || ticket.getPreferredContactName().isBlank()) {
+            ticket.setPreferredContactName(ticket.getUserId());
+        }
         return repo.save(ticket);
+    }
+
+    @GetMapping("/{id}")
+    public Ticket getById(@PathVariable String id) {
+        return repo.findById(id).orElseThrow();
     }
 
     // GET all tickets
@@ -46,10 +57,7 @@ public class TicketController {
     // GET tickets by user
     @GetMapping("/user/{userId}")
     public List<Ticket> getByUser(@PathVariable String userId) {
-        return repo.findAll()
-                .stream()
-                .filter(t -> t.getUserId().equals(userId))
-                .toList();
+        return repo.findByUserId(userId);
     }
 
     // VALIDATE status values
@@ -59,6 +67,12 @@ public class TicketController {
                status.equals("RESOLVED") ||
                status.equals("CLOSED") ||
                status.equals("REJECTED");
+    }
+
+    private void ensureCommentsList(Ticket ticket) {
+        if (ticket.getComments() == null) {
+            ticket.setComments(new ArrayList<>());
+        }
     }
 
     // Single file upload (keeps compatibility)
@@ -133,6 +147,8 @@ public class TicketController {
                 return "❌ Rejected status requires a reason";
             }
             t.setRejectedReason(reason);
+        } else {
+            t.setRejectedReason(null);
         }
         t.setStatus(status);
         repo.save(t);
@@ -153,11 +169,10 @@ public class TicketController {
     @PostMapping("/{id}/comments")
     public Ticket addComment(@PathVariable String id, @RequestBody Comment comment) {
         Ticket t = repo.findById(id).orElseThrow();
-        if (t.getComments() == null) {
-            t.setComments(new ArrayList<>());
-        }
+        ensureCommentsList(t);
         comment.setId(UUID.randomUUID().toString());
         comment.setCreatedAt(new Date());
+        comment.setUpdatedAt(null);
         t.getComments().add(comment);
         return repo.save(t);
     }
