@@ -81,6 +81,12 @@ function PlaceholderPage({ title, description }) {
 
 function AppShell({ userEmail, userRole, onLogout }) {
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
+  const storedEmail = localStorage.getItem("userEmail");
+  const storedName = localStorage.getItem("userName");
+  const rawEmail = userEmail || storedEmail || "";
+  const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
+  const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
+  const identityLabel = safeEmail || safeName || "User";
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -110,13 +116,13 @@ function AppShell({ userEmail, userRole, onLogout }) {
               </button>
 
               <div className="relative group">
-                <button className="p-1 hover:bg-slate-100 rounded-full" title={userEmail || "User"}>
+                <button className="p-1 hover:bg-slate-100 rounded-full" title={identityLabel}>
                   <UserCircle className="w-8 h-8 text-slate-400" />
                 </button>
                 <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-slate-100">
                   <div className="px-4 py-3 border-b border-slate-100">
                     <p className="text-xs text-slate-500">Signed in as</p>
-                    <p className="text-sm font-semibold text-slate-900 break-all">{userEmail}</p>
+                    <p className="text-sm font-semibold text-slate-900 break-all">{identityLabel}</p>
                   </div>
                   <button
                     onClick={onLogout}

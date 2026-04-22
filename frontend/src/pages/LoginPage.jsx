@@ -33,6 +33,19 @@ export default function LoginPage({ onLoginSuccess }) {
     setForm(prev => ({ ...prev, [name]: value }));
   }
 
+  function extractEmailFromCredential(credential) {
+    try {
+      const payload = credential?.split(".")?.[1];
+      if (!payload) return "";
+
+      const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const json = JSON.parse(atob(normalized));
+      return (json?.email || "").trim();
+    } catch {
+      return "";
+    }
+  }
+
   async function handleLogin(e) {
     e.preventDefault();
     setLoading(true);
@@ -40,15 +53,18 @@ export default function LoginPage({ onLoginSuccess }) {
 
     try {
       const data = await login(form.studentEmail, form.password, selectedRole, selectedTechType);
-      
+
+      const safeEmail = (data.studentEmail || data.email || form.studentEmail || '').trim();
+      const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
+
       localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.studentEmail);
-      localStorage.setItem('userName', `${data.firstName} ${data.lastName}`);
+      localStorage.setItem('userEmail', safeEmail);
+      localStorage.setItem('userName', safeName);
       localStorage.setItem('userRole', data.role);
       localStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
-        onLoginSuccess(data.studentEmail);
+        onLoginSuccess(safeEmail);
       }
       
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
@@ -69,14 +85,18 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       const data = await googleLogin(credential, null);
 
+      const gmailFromToken = extractEmailFromCredential(credential);
+      const safeEmail = (data.studentEmail || data.email || gmailFromToken || '').trim();
+      const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
+
       localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.studentEmail);
-      localStorage.setItem('userName', `${data.firstName} ${data.lastName}`);
+      localStorage.setItem('userEmail', safeEmail);
+      localStorage.setItem('userName', safeName);
       localStorage.setItem('userRole', data.role);
       localStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
-        onLoginSuccess(data.studentEmail);
+        onLoginSuccess(safeEmail);
       }
 
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
