@@ -216,11 +216,14 @@ export default function SignupPage() {
       );
 
       setSuccess('✅ Account created successfully! Redirecting...');
-      
+
+      const safeEmail = (result.studentEmail || result.email || formData.studentEmail || '').trim();
+      const safeName = [result.firstName, result.lastName].filter(Boolean).join(' ').trim() || result.username || safeEmail;
+
       // Auto-login user
       localStorage.setItem('token', result.token);
-      localStorage.setItem('userEmail', result.studentEmail);
-      localStorage.setItem('userName', `${result.firstName} ${result.lastName}`);
+      localStorage.setItem('userEmail', safeEmail);
+      localStorage.setItem('userName', safeName);
       localStorage.setItem('userRole', result.role);
       localStorage.setItem('isLoggedIn', 'true');
 
