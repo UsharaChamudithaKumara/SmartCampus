@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createTicket, uploadImage } from "../api";
+import { createTicket, uploadImages } from "../api";
 import {
   UploadCloud,
   CheckCircle2,
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TicketForm({ onCreated }) {
   const navigate = useNavigate();
+  const currentUserId = localStorage.getItem("userEmail") || "";
 
   const [form, setForm] = useState({
     title: "",
@@ -19,10 +20,14 @@ export default function TicketForm({ onCreated }) {
     category: "Bug",
     priority: "MEDIUM",
     resourceId: "",
-    userId: "",
+    location: "",
+    preferredContactName: "",
+    preferredContactEmail: currentUserId,
+    preferredContactPhone: "",
+    userId: currentUserId,
   });
 
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
 
@@ -39,11 +44,20 @@ export default function TicketForm({ onCreated }) {
     setLoading(true);
     setStatus(null);
 
-    try {
-      const created = await createTicket(form);
+    if (!currentUserId) {
+      setStatus({
+        type: "error",
+        message: "Session expired. Please log in again.",
+      });
+      setLoading(false);
+      return;
+    }
 
-      if (file) {
-        await uploadImage(created.id, file);
+    try {
+      const created = await createTicket({ ...form, userId: currentUserId });
+
+      if (files && files.length > 0) {
+        await uploadImages(created.id, files);
       }
 
       setStatus({
@@ -209,21 +223,82 @@ export default function TicketForm({ onCreated }) {
                   <input name="resourceId" value={form.resourceId} onChange={update} className="w-full border rounded-xl px-4 py-2.5" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-700">User ID</label>
-                  <input name="userId" value={form.userId} onChange={update} required className="w-full border rounded-xl px-4 py-2.5" />
+                  <label className="text-sm font-semibold text-slate-700">Submitted By</label>
+                  <input value={currentUserId || "Not signed in"} readOnly className="w-full border rounded-xl px-4 py-2.5 bg-slate-50 text-slate-600" />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Location</label>
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={update}
+                    placeholder="e.g. Library - Level 2"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Name</label>
+                  <input
+                    name="preferredContactName"
+                    value={form.preferredContactName}
+                    onChange={update}
+                    placeholder="Optional"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Email</label>
+                  <input
+                    name="preferredContactEmail"
+                    value={form.preferredContactEmail}
+                    onChange={update}
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Preferred Contact Phone</label>
+                  <input
+                    name="preferredContactPhone"
+                    value={form.preferredContactPhone}
+                    onChange={update}
+                    placeholder="Optional"
+                    className="w-full border rounded-xl px-4 py-2.5"
+                  />
                 </div>
               </motion.div>
 
               <motion.div variants={itemVariants} className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Attachment <span className="text-slate-400 font-normal">(Optional)</span></label>
+                <label className="text-sm font-semibold text-slate-700">Attachment <span className="text-slate-400 font-normal">(Optional, up to 3)</span></label>
                 <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50/50 hover:bg-blue-50 hover:border-blue-300 transition-colors relative overflow-hidden group">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
-                      <p className="text-sm text-slate-600 font-medium">{file ? <span className="text-blue-600">{file.name}</span> : <span>Click or drag to upload</span>}</p>
-                      {!file && <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>}
+                  <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50/50 hover:bg-blue-50 hover:border-blue-300 transition-colors relative overflow-hidden group p-4">
+                    <div className="w-full">
+                      {files && files.length > 0 ? (
+                        <div className="grid grid-cols-3 gap-3">
+                          {files.map((f, idx) => (
+                            <div key={idx} className="relative w-full h-24 bg-white rounded overflow-hidden border">
+                              <img src={URL.createObjectURL(f)} alt={f.name} className="w-full h-full object-cover" />
+                              <button type="button" onClick={(e) => { e.stopPropagation(); setFiles(prev => prev.filter((_, i) => i !== idx)); }} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">×</button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
+                          <p className="text-sm text-slate-600 font-medium"><span>Click or drag to upload</span></p>
+                          <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                        </div>
+                      )}
                     </div>
-                    <input type="file" accept="image/*" className="hidden" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={e => {
+                      const selected = Array.from(e.target.files || []).slice(0, 3);
+                      setFiles(selected);
+                    }} />
                   </label>
                 </div>
               </motion.div>
