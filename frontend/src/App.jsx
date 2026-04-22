@@ -10,6 +10,9 @@ import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage"; 
 import ResourceForm from "./components/ResourceForm";
 
+import AdminResourceList from "./components/ManageResourcesPage";
+import ManageResourcesPage from "./components/ManageResourcesPage";
+
 // NAVIGATION COMPONENT
 function Navigation() {
   const location = useLocation();
@@ -93,6 +96,7 @@ export default function App() {
               <Route path="/catalogue" element={<CataloguePage />} />
               <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
               <Route path="/resource-form" element={<ResourceForm />} />
+              <Route path="/resource-list" element={<ManageResourcesPage />} />
             </Routes>
           </AnimatePresence>
         </main>
