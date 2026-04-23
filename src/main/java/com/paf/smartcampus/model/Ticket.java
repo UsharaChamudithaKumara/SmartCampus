@@ -3,6 +3,8 @@ package com.paf.smartcampus.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 @Document(collection = "tickets")
@@ -11,23 +13,45 @@ public class Ticket {
     @Id
     private String id;
 
+    @NotBlank(message = "Title is required")
     private String title;
+
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @NotBlank(message = "Category is required")
     private String category;
+
+    @NotBlank(message = "Priority is required")
     private String priority;
 
     private String resourceId;
+
+    private String location;
+
+    private String preferredContactName;
+
+    private String preferredContactEmail;
+
+    private String preferredContactPhone;
+
+    // Support multiple images (accessible URLs)
+    private List<String> imageUrls;
+
+    @NotBlank(message = "User ID is required")
     private String userId;
 
     private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED, REJECTED
 
     private String assignedTo; // technician
 
-    private List<String> comments;
+    private String rejectedReason;
+
+    private String resolutionNotes;
+
+    private List<Comment> comments;
 
     public Ticket() {}
-
-    // GETTERS & SETTERS
 
     public String getId() {
         return id;
@@ -77,6 +101,46 @@ public class Ticket {
         this.resourceId = resourceId;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getPreferredContactName() {
+        return preferredContactName;
+    }
+
+    public void setPreferredContactName(String preferredContactName) {
+        this.preferredContactName = preferredContactName;
+    }
+
+    public String getPreferredContactEmail() {
+        return preferredContactEmail;
+    }
+
+    public void setPreferredContactEmail(String preferredContactEmail) {
+        this.preferredContactEmail = preferredContactEmail;
+    }
+
+    public String getPreferredContactPhone() {
+        return preferredContactPhone;
+    }
+
+    public void setPreferredContactPhone(String preferredContactPhone) {
+        this.preferredContactPhone = preferredContactPhone;
+    }
+
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -101,11 +165,27 @@ public class Ticket {
         this.assignedTo = assignedTo;
     }
 
-    public List<String> getComments() {
+    public String getRejectedReason() {
+        return rejectedReason;
+    }
+
+    public void setRejectedReason(String rejectedReason) {
+        this.rejectedReason = rejectedReason;
+    }
+
+    public String getResolutionNotes() {
+        return resolutionNotes;
+    }
+
+    public void setResolutionNotes(String resolutionNotes) {
+        this.resolutionNotes = resolutionNotes;
+    }
+
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(List<String> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 }

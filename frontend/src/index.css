@@ -1,10 +1,26 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+/* GLOBAL STYLES */
+body {
+  font-family: 'Inter', sans-serif;
+  /* ✅ apply font globally */
+  background-color: #f8fafc;
+  /* slate-50 */
+  color: #0f172a;
+  /* slate-900 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f8fafc;
+/* OPTIONAL: smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
