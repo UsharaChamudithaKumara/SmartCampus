@@ -1,121 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [currentPage, setCurrentPage] = useState("my-bookings");
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div style={styles.app}>
+      {/* Navigation Bar */}
+      <nav style={styles.nav}>
+        <div style={styles.navBrand}>🏫 Smart Campus</div>
+        <div style={styles.navLinks}>
+          <button
+            onClick={() => setCurrentPage("my-bookings")}
+            style={{ ...styles.navBtn, ...(currentPage === "my-bookings" ? styles.navBtnActive : {}) }}>
+            My Bookings
+          </button>
+          <button
+            onClick={() => setCurrentPage("admin")}
+            style={{ ...styles.navBtn, ...(currentPage === "admin" ? styles.navBtnActive : {}) }}>
+            Admin Panel
+          </button>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </nav>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Page Content */}
+      <main style={styles.main}>
+        {currentPage === "my-bookings" && <BookingListPage />}
+        {currentPage === "admin" && <AdminBookingsPage />}
+      </main>
+    </div>
+  );
 }
 
-export default App
+const styles = {
+  app: { minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, sans-serif" },
+  nav: { background: "#1e293b", padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center" },
+  navBrand: { color: "#fff", fontSize: 20, fontWeight: 700 },
+  navLinks: { display: "flex", gap: 8 },
+  navBtn: { padding: "8px 18px", background: "transparent", color: "#94a3b8", border: "1.5px solid transparent", borderRadius: 8, cursor: "pointer", fontWeight: 500, fontSize: 14 },
+  navBtnActive: { background: "#2563eb", color: "#fff", borderColor: "#2563eb" },
+  main: { padding: "24px 0" },
+};
