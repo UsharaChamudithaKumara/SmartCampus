@@ -16,11 +16,11 @@ import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 
-import CataloguePage from "./pages/CataloguePage"; 
-import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+
+ 
 import ResourceForm from "./components/ResourceForm";
 
-import AdminResourceList from "./components/ManageResourcesPage";
+
 import ManageResourcesPage from "./components/ManageResourcesPage";
 
 import LoginPage from "./pages/LoginPage";
