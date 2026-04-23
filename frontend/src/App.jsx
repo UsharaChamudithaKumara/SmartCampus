@@ -7,7 +7,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
 
 import DashboardPage from "./pages/DashboardPage";
@@ -23,10 +23,11 @@ import ResourceForm from "./components/ResourceForm";
 import AdminResourceList from "./components/ManageResourcesPage";
 import ManageResourcesPage from "./components/ManageResourcesPage";
 
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
+
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import CataloguePage from "./pages/CataloguePage";
-import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
 
 
@@ -146,19 +147,6 @@ function AppShell({ userEmail, userRole, onLogout }) {
           </div>
 
 
-        {/* CONTENT ROUTES */}
-        <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<TicketsPage />} />
-              <Route path="/create" element={<CreateTicketPage />} />
-              <Route path="/catalogue" element={<CataloguePage />} />
-              <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-              <Route path="/resource-form" element={<ResourceForm />} />
-              <Route path="/resource-list" element={<ManageResourcesPage />} />
-            </Routes>
-          </AnimatePresence>
-        </main>
 
           <Navigation userRole={userRole} />
         </div>
@@ -178,7 +166,7 @@ function AppShell({ userEmail, userRole, onLogout }) {
           <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
           <Route
             path="/bookings"
-            element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
+            element={userRole === "ADMIN" ? <AdminBookingsPage /> : <BookingListPage />}
           />
           <Route
             path="/notifications"
