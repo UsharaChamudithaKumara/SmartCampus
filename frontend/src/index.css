@@ -10,9 +10,12 @@
 
 /* GLOBAL STYLES */
 body {
-  font-family: 'Inter', sans-serif; /* ✅ apply font globally */
-  background-color: #f8fafc; /* slate-50 */
-  color: #0f172a; /* slate-900 */
+  font-family: 'Inter', sans-serif;
+  /* ✅ apply font globally */
+  background-color: #f8fafc;
+  /* slate-50 */
+  color: #0f172a;
+  /* slate-900 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -21,4 +24,3 @@ body {
 html {
   scroll-behavior: smooth;
 }
-
