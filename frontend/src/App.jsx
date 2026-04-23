@@ -7,7 +7,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
 
 import DashboardPage from "./pages/DashboardPage";
@@ -15,14 +15,8 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
-
-
- 
 import ResourceForm from "./components/ResourceForm";
-
-
 import ManageResourcesPage from "./components/ManageResourcesPage";
-
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
@@ -37,6 +31,7 @@ function Navigation({ userRole }) {
     { path: "/dashboard", label: "Dashboard" },
     { path: "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "Booking Management" },
+   
     {
   path:
     userRole === "ADMIN"
@@ -145,47 +140,35 @@ function AppShell({ userEmail, userRole, onLogout }) {
             </div>
           </div>
 
-
-        {/* CONTENT ROUTES */}
-        <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<TicketsPage />} />
-              <Route path="/create" element={<CreateTicketPage />} />
-              <Route path="/catalogue" element={<CataloguePage />} />
-              <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-              <Route path="/resource-form" element={<ResourceForm />} />
-              <Route path="/resource-list" element={<ManageResourcesPage />} />
-            </Routes>
-          </AnimatePresence>
-        </main>
-
           <Navigation userRole={userRole} />
         </div>
       </header>
 
-
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/admin" element={<AdminConsolePage />} />
-          <Route path="/tickets" element={<TicketsPage />} />
-          <Route path="/admin/tickets" element={<AdminTicketsPage />} />
-          <Route path="/staff/tickets" element={<TicketsPage />} />
-          <Route path="/create" element={<CreateTicketPage />} />
-          <Route path="/catalogue" element={<CataloguePage />} />
-          <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-          <Route
-            path="/bookings"
-            element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
-          />
-          <Route
-            path="/notifications"
-            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
-          />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/admin" element={<AdminConsolePage />} />
+            <Route path="/tickets" element={<TicketsPage />} />
+            <Route path="/admin/tickets" element={<AdminTicketsPage />} />
+            <Route path="/staff/tickets" element={<TicketsPage />} />
+            <Route path="/create" element={<CreateTicketPage />} />
+            <Route path="/catalogue" element={<CataloguePage />} />
+            <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
+            <Route path="/resource-form" element={<ResourceForm />} />
+           <Route path="/manage-resources" element={<ManageResourcesPage />} /> 
+            <Route
+              path="/bookings"
+              element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
+            />
+            <Route
+              path="/notifications"
+              element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
+            />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
+          </Routes>
+        </AnimatePresence>
       </main>
 
       <footer className="bg-white border-t py-4 text-center text-xs text-slate-400">
@@ -249,7 +232,7 @@ export default function App() {
         <>
           <Routes>
             <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin-login" element={<Navigate to="/admin" replace />} />
+            <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={null} />
           </Routes>
