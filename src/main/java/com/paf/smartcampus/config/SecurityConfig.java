@@ -20,7 +20,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .csrf(csrf -> csrf.disable()) // ✅ FIXED
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/tickets/**", "/api/resources/**", "/uploads/**").permitAll()
+            .requestMatchers("/api/tickets/**", "/api/resources/**", "/uploads/**", "/api/bookings/**").permitAll()
             .anyRequest().authenticated()
         )
         .httpBasic(httpBasic -> httpBasic.disable()) // ✅ FIXED
