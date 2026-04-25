@@ -17,10 +17,6 @@ import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import ManageResourcesPage from "./components/ManageResourcesPage";
-
-import BookingListPage from "./features/bookings/BookingListPage";
-import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
-
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
@@ -39,19 +35,19 @@ function Navigation({ userRole }) {
     { path: userRole === "ADMIN" ? "/admin/facilities" : "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "Booking Management" },
     {
-  path:
-    userRole === "ADMIN"
-      ? "/admin/tickets"
-      : userRole === "TECHNICIAN"
-      ? "/staff/tickets"
-      : "/tickets",
-  label:
-    userRole === "ADMIN"
-      ? "Admin Tickets"
-      : userRole === "TECHNICIAN"
-      ? "Staff Tickets"
-      : "Ticket Management",
-},
+      path:
+        userRole === "ADMIN"
+          ? "/admin/tickets"
+          : userRole === "TECHNICIAN"
+            ? "/staff/tickets"
+            : "/tickets",
+      label:
+        userRole === "ADMIN"
+          ? "Admin Tickets"
+          : userRole === "TECHNICIAN"
+            ? "Staff Tickets"
+            : "Ticket Management",
+    },
     { path: "/notifications", label: "Notifications" },
   ];
 
@@ -64,9 +60,8 @@ function Navigation({ userRole }) {
           <Link
             key={item.path}
             to={item.path}
-            className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              isActive ? "text-blue-700 bg-blue-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-            }`}
+            className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive ? "text-blue-700 bg-blue-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
           >
             {item.label}
             {isActive && <motion.div layoutId="nav-indicator" className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600" />}
