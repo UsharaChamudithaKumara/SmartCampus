@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchTickets, assignTechnician, adminCloseTicket } from "../api";
 import TechnicianSelectionModal from "../components/TechnicianSelectionModal";
+import { Ticket, AlertCircle, Clock, CheckCircle2 } from "lucide-react";
 
 const STATUS_COLORS = {
   OPEN: { bg: "#fef3c7", text: "#b45309" },
@@ -61,13 +62,42 @@ export default function AdminTicketsPageNew() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Admin: Ticket Management</h1>
-        <div style={styles.stats}>
-          <span style={styles.stat}>Total: {tickets.length}</span>
-          <span style={styles.stat}>Open: {tickets.filter((t) => t.status === "OPEN").length}</span>
-          <span style={styles.stat}>In Progress: {tickets.filter((t) => t.status === "IN_PROGRESS").length}</span>
-          <span style={styles.stat}>Resolved: {tickets.filter((t) => t.status === "RESOLVED").length}</span>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900 text-left">Admin: Ticket Management</h1>
+      </div>
+
+      {/* Analytics Overview Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-left">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-blue-500 group">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300"><Ticket size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Total Tickets</p>
+          </div>
+          <h3 className="text-3xl font-bold text-slate-900 mt-2">{tickets.length}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-amber-500 group">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300"><AlertCircle size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Open</p>
+          </div>
+          <h3 className="text-3xl font-bold text-amber-600 mt-2">{tickets.filter((t) => t.status === "OPEN").length}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-emerald-500 group">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300"><Clock size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">In Progress</p>
+          </div>
+          <h3 className="text-3xl font-bold text-emerald-600 mt-2">{tickets.filter((t) => t.status === "IN_PROGRESS").length}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-purple-500 group">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-purple-50 text-purple-600 rounded-lg group-hover:bg-purple-500 group-hover:text-white transition-colors duration-300"><CheckCircle2 size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Resolved</p>
+          </div>
+          <h3 className="text-3xl font-bold text-purple-600 mt-2">{tickets.filter((t) => t.status === "RESOLVED").length}</h3>
         </div>
       </div>
 

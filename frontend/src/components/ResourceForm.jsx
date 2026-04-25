@@ -269,7 +269,7 @@ const ResourceForm = ({ initialData, onResourceAdded, onSuccess, onCancel }) => 
 
                 <button 
                     type="submit" 
-                    className="px-8 py-3 bg-[#1e293b] text-white font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
+                    className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2"
                 >
                     {isEditing ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                     {isEditing ? 'Update Resource' : 'Create Resource'}
