@@ -15,42 +15,39 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
+import BookingsPage from "./pages/BookingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
-import CataloguePage from "./pages/CataloguePage"; 
-import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+import CataloguePage from "./pages/CataloguePage";
+import ViewCataloguePage from "./pages/ViewCataloguePage";
 import ResourceForm from "./components/ResourceForm";
 
-import AdminResourceList from "./components/ManageResourcesPage";
 import ManageResourcesPage from "./components/ManageResourcesPage";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import CataloguePage from "./pages/CataloguePage";
-import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
-
 
 function Navigation({ userRole }) {
   const location = useLocation();
-  const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "Booking Management" },
     {
-  path:
-    userRole === "ADMIN"
-      ? "/admin/tickets"
-      : userRole === "TECHNICIAN"
-      ? "/staff/tickets"
-      : "/tickets",
-  label:
-    userRole === "ADMIN"
-      ? "Admin Tickets"
-      : userRole === "TECHNICIAN"
-      ? "Staff Tickets"
-      : "Ticket Management",
-},
+      path:
+        userRole === "ADMIN"
+          ? "/admin/tickets"
+          : userRole === "TECHNICIAN"
+          ? "/staff/tickets"
+          : "/tickets",
+      label:
+        userRole === "ADMIN"
+          ? "Admin Tickets"
+          : userRole === "TECHNICIAN"
+          ? "Staff Tickets"
+          : "Ticket Management",
+    },
     { path: "/notifications", label: "Notifications" },
   ];
 
@@ -76,25 +73,14 @@ function Navigation({ userRole }) {
   );
 }
 
-function PlaceholderPage({ title, description }) {
-  return (
-    <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-      <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
-      <p className="text-slate-600 mt-2">{description}</p>
-      <p className="text-sm text-slate-500 mt-4">
-        This module is listed in the assignment header and can be implemented next.
-      </p>
-    </div>
-  );
-}
-
 function AppShell({ userEmail, userRole, onLogout }) {
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const storedEmail = localStorage.getItem("userEmail");
   const storedName = localStorage.getItem("userName");
   const rawEmail = userEmail || storedEmail || "";
   const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
-  const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
+  const safeName =
+    storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
   const identityLabel = safeEmail || safeName || "User";
 
   return (
@@ -119,10 +105,9 @@ function AppShell({ userEmail, userRole, onLogout }) {
                 </div>
               )}
 
-              <button className="p-2 hover:bg-slate-100 rounded-full relative" title="Notifications">
+              <Link to="/notifications" className="p-2 hover:bg-slate-100 rounded-full relative" title="Notifications">
                 <Bell className="w-5 h-5 text-slate-600" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              </Link>
 
               <div className="relative group">
                 <button className="p-1 hover:bg-slate-100 rounded-full" title={identityLabel}>
@@ -145,25 +130,9 @@ function AppShell({ userEmail, userRole, onLogout }) {
             </div>
           </div>
 
-
-        {/* CONTENT ROUTES */}
-        <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<TicketsPage />} />
-              <Route path="/create" element={<CreateTicketPage />} />
-              <Route path="/catalogue" element={<CataloguePage />} />
-              <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-              <Route path="/resource-form" element={<ResourceForm />} />
-              <Route path="/resource-list" element={<ManageResourcesPage />} />
-            </Routes>
-          </AnimatePresence>
-        </main>
-
           <Navigation userRole={userRole} />
         </div>
       </header>
-
 
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
         <Routes>
@@ -176,14 +145,10 @@ function AppShell({ userEmail, userRole, onLogout }) {
           <Route path="/create" element={<CreateTicketPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-          <Route
-            path="/bookings"
-            element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
-          />
-          <Route
-            path="/notifications"
-            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
-          />
+          <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/resource-form" element={<ResourceForm />} />
+          <Route path="/resource-list" element={<ManageResourcesPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
