@@ -8,11 +8,9 @@ import TechnicianLoginStatus from "../components/TechnicianLoginStatus";
 import { googleLogin, login } from "../api";
 
 const TECHNICIAN_TYPES = [
-  { value: "PLUMBER", label: "Plumber" },
-  { value: "ELECTRICIAN", label: "Electrician" },
-  { value: "CARPENTER", label: "Carpenter" },
-  { value: "PAINTER", label: "Painter" },
-  { value: "HVAC", label: "HVAC Technician" },
+  { value: "HARDWARE", label: "Hardware" },
+  { value: "SOFTWARE", label: "Software" },
+  { value: "NETWORK", label: "Network" },
   { value: "GENERAL", label: "General Maintenance" },
 ];
 
@@ -73,7 +71,17 @@ export default function LoginPage({ onLoginSuccess }) {
       
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => {
+
         navigate('/dashboard', { replace: true });
+
+        if (data.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+
       }, 1000);
     } catch (err) {
       const errMsg = err.message || 'Login failed. Please try again.';
@@ -113,7 +121,17 @@ export default function LoginPage({ onLoginSuccess }) {
 
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
       setTimeout(() => {
+
         navigate('/dashboard', { replace: true });
+
+        if (data.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+
       }, 1000);
     } catch (err) {
       setStatus({ type: 'error', message: err.message || 'Google login failed. Please try again.' });

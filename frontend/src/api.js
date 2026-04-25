@@ -3,6 +3,8 @@
 const BASE_TICKETS = '/api/tickets';
 const BASE_RESOURCES = '/api/resources';
 const AUTH_BASE = '/api/auth';
+const BASE_BOOKINGS = '/api/bookings';
+const BASE_NOTIFICATIONS = '/api/notifications';
 
 function tryParseJson(text) {
   try {
@@ -316,6 +318,55 @@ export async function deleteResource(id) {
   return true;      
 }
 
+// Bookings API
+export async function createBooking(booking) {
+  const userEmail = localStorage.getItem('userEmail') || '';
+  const userId = localStorage.getItem('userEmail') || '';
+  const res = await fetch(BASE_BOOKINGS, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Id': userId,
+      'X-User-Email': userEmail,
+    },
+    body: JSON.stringify(booking),
+  });
+  return parseResponseOrThrow(res, 'Failed to create booking');
+}
+
+export async function fetchMyBookings() {
+  const userId = localStorage.getItem('userEmail') || '';
+  const res = await fetch(`${BASE_BOOKINGS}/my`, {
+    headers: {
+      'X-User-Id': userId,
+    },
+  });
+  return parseResponseOrThrow(res, 'Failed to fetch bookings');
+}
+
+// Notifications API
+export async function fetchNotifications(userEmail) {
+  const safeEmail = encodeURIComponent(userEmail || '');
+  const res = await fetch(`${BASE_NOTIFICATIONS}?userEmail=${safeEmail}`);
+  return parseResponseOrThrow(res, 'Failed to fetch notifications');
+}
+
+export async function markNotificationRead(id) {
+  const res = await fetch(`${BASE_NOTIFICATIONS}/${id}/read`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to mark notification as read');
+}
+
+export async function markAllNotificationsRead(userEmail) {
+  const res = await fetch(`${BASE_NOTIFICATIONS}/read-all`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userEmail }),
+  });
+  return parseResponseOrThrow(res, 'Failed to mark all notifications as read');
+}
+
 const api = {
   fetchTickets,
   fetchTicketsByUser,
@@ -342,6 +393,11 @@ const api = {
   createResource,
   updateResource,
   deleteResource,
+  createBooking,
+  fetchMyBookings,
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
 };
 
 export default api;

@@ -14,6 +14,27 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+
+   @Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> {})
+        .csrf(csrf -> csrf.disable()) // ✅ FIXED
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll()
+
+            .requestMatchers("/api/tickets/**", "/api/resources/**", "/api/bookings/**", "/api/notifications/**", "/uploads/**").permitAll()
+
+            .requestMatchers("/api/tickets/**", "/api/resources/**", "/api/bookings/**", "/uploads/**").permitAll()
+
+            .anyRequest().authenticated()
+        )
+        .httpBasic(httpBasic -> httpBasic.disable()) // ✅ FIXED
+        .formLogin(form -> form.disable());
+
+    return http.build();
+}
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -36,6 +57,7 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

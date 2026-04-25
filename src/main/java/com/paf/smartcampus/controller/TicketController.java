@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.paf.smartcampus.model.Ticket;
 import com.paf.smartcampus.model.Comment;
 import com.paf.smartcampus.repository.TicketRepository;
+import com.paf.smartcampus.service.NotificationService;
 
 import jakarta.validation.Valid;
 
@@ -28,6 +29,9 @@ public class TicketController {
     @Autowired
     private TicketRepository repo;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // CREATE ticket (with validation)
     @PostMapping
     public Ticket create(@Valid @RequestBody Ticket ticket) {
@@ -40,7 +44,19 @@ public class TicketController {
         if (ticket.getPreferredContactName() == null || ticket.getPreferredContactName().isBlank()) {
             ticket.setPreferredContactName(ticket.getUserId());
         }
-        return repo.save(ticket);
+        Ticket saved = repo.save(ticket);
+
+        if (saved.getUserId() != null && !saved.getUserId().isBlank()) {
+            notificationService.create(
+                    saved.getUserId(),
+                    "TICKET_CREATED",
+                    "Ticket submitted",
+                    "Your ticket \"" + saved.getTitle() + "\" has been submitted successfully.",
+                    saved.getId(),
+                    "TICKET");
+        }
+
+        return saved;
     }
 
     @GetMapping("/{id}")
