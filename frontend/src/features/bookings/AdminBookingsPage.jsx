@@ -1,11 +1,37 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, Clock, Calendar, ClipboardList, XCircle } from "lucide-react";
 import { getAllBookings, approveBooking, rejectBooking, deleteBooking } from "./bookingService";
 import BookingCard from "./BookingCard";
+import axios from "axios";
 
 const STATUS_OPTIONS = ["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"];
 
+// Animated Counter Component
+const AnimatedCounter = ({ value }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    if (start === end) return;
+    const duration = 1000;
+    const incrementTime = Math.abs(Math.floor(duration / end));
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+      if (start === end) clearInterval(timer);
+    }, incrementTime);
+    return () => clearInterval(timer);
+  }, [value]);
+
+  return <span>{count}</span>;
+};
+
 export default function AdminBookingsPage() {
+  const [allBookingsForStats, setAllBookingsForStats] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -13,10 +39,15 @@ export default function AdminBookingsPage() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const filters = {};
-      if (statusFilter !== "ALL") filters.status = statusFilter;
-      const { data } = await getAllBookings(filters);
-      setBookings(data);
+      
+      const { data: allData } = await getAllBookings({});
+      setAllBookingsForStats(allData);
+      
+      let filteredData = allData;
+      if (statusFilter !== "ALL") {
+          filteredData = allData.filter(b => b.status === statusFilter);
+      }
+      setBookings(filteredData);
     } catch {
       setError("Failed to load bookings.");
     } finally {
@@ -24,7 +55,17 @@ export default function AdminBookingsPage() {
     }
   };
 
+  const fetchResources = async () => {
+    try {
+      const { data } = await axios.get("/api/resources");
+      setResources(data);
+    } catch {
+      console.log("Could not load resources");
+    }
+  };
+
   useEffect(() => { fetchBookings(); }, [statusFilter]);
+  useEffect(() => { fetchResources(); }, []);
 
   const handleApprove = async (id) => {
     try {
@@ -56,66 +97,146 @@ export default function AdminBookingsPage() {
     }
   };
 
-  const pendingCount = bookings.filter(b => b.status === "PENDING").length;
+  const counts = {
+    total: allBookingsForStats.length,
+    pending: allBookingsForStats.filter(b => b.status === "PENDING").length,
+    approved: allBookingsForStats.filter(b => b.status === "APPROVED").length,
+    cancelled: allBookingsForStats.filter(b => b.status === "CANCELLED" || b.status === "REJECTED").length,
+  };
+
+  const statsVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+  };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.topBar}>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 style={styles.heading}>Booking Management</h1>
-          {pendingCount > 0 && (
-            <span style={styles.pendingBadge}>{pendingCount} pending approval</span>
-          )}
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight"
+          >
+            Admin Booking Management
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-500 mt-1 flex items-center gap-3"
+          >
+            Manage and oversee all student staff resource requests
+            {counts.pending > 0 && (
+              <span className="bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full text-xs font-bold leading-5 shadow-sm border border-amber-200">
+                {counts.pending} Action Required
+              </span>
+            )}
+          </motion.p>
         </div>
       </div>
 
-      <div style={styles.filters}>
-        <label style={styles.filterLabel}>Filter by Status</label>
-        <div style={styles.tabGroup}>
-          {STATUS_OPTIONS.map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)}
-              style={{ ...styles.tab, ...(statusFilter === s ? styles.tabActive : {}) }}>
-              {s}
-            </button>
-          ))}
-        </div>
+      {/* Stats Banner */}
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{ show: { transition: { staggerChildren: 0.1 } } }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+      >
+        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><ClipboardList className="w-6 h-6" /></div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Total Bookings</p>
+            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.total} /></p>
+          </div>
+        </motion.div>
+
+        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div className="p-3 bg-yellow-100 text-yellow-600 rounded-xl"><Clock className="w-6 h-6" /></div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Pending</p>
+            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.pending} /></p>
+          </div>
+        </motion.div>
+
+        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div className="p-3 bg-green-100 text-green-600 rounded-xl"><CheckCircle2 className="w-6 h-6" /></div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Approved</p>
+            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.approved} /></p>
+          </div>
+        </motion.div>
+
+        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div className="p-3 bg-slate-100 text-slate-500 rounded-xl"><XCircle className="w-6 h-6" /></div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Rejected/Cancelled</p>
+            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.cancelled} /></p>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {STATUS_OPTIONS.map(s => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+              statusFilter === s
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
 
-      <p style={styles.statsText}>Showing {bookings.length} booking(s)</p>
-
-      {loading && <p style={styles.info}>Loading bookings...</p>}
-      {error && <p style={styles.errorText}>{error}</p>}
-
-      {!loading && !error && bookings.length === 0 && (
-        <p style={styles.info}>No bookings found.</p>
+      {loading && (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-slate-500 mt-4">Loading bookings...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="p-4 bg-red-50 text-red-600 rounded-xl font-medium text-center">
+          {error}
+        </div>
       )}
 
-      <div style={styles.grid}>
+      {!loading && !error && bookings.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm"
+        >
+          <div className="mx-auto w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <Calendar className="w-8 h-8 text-slate-400" />
+          </div>
+          <p className="text-lg font-semibold text-slate-900">No bookings match</p>
+          <p className="text-slate-500 mt-1 mb-6">
+            There are no bookings matching the current filter.
+          </p>
+        </motion.div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {bookings.map((b) => (
-          <div key={b.id} style={{ position: "relative" }}>
-            <BookingCard booking={b} isAdmin={true}
-              onApprove={handleApprove} onReject={handleReject} />
-            <button onClick={() => handleDelete(b.id)} style={styles.deleteBtn}>🗑</button>
+          <div key={b.id} className="relative group">
+            <BookingCard booking={b} isAdmin={true} onApprove={handleApprove} onReject={handleReject} resources={resources} />
+            <button
+              onClick={() => handleDelete(b.id)}
+              className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all focus:opacity-100 bg-white"
+              title="Delete Booking"
+            >
+              <XCircle className="w-5 h-5" />
+            </button>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-const styles = {
-  page: { padding: 28, maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 },
-  topBar: { display: "flex", justifyContent: "space-between", alignItems: "center" },
-  heading: { fontSize: 26, fontWeight: 700, color: "#1e293b", marginBottom: 4 },
-  pendingBadge: { background: "#fef9c3", color: "#92400e", padding: "3px 12px", borderRadius: 20, fontSize: 13, fontWeight: 600 },
-  filters: { display: "flex", flexDirection: "column", gap: 8, background: "#f8fafc", padding: "18px 20px", borderRadius: 12, border: "1px solid #e2e8f0" },
-  filterLabel: { fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" },
-  tabGroup: { display: "flex", gap: 6 },
-  tab: { padding: "6px 14px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: "#fff", fontSize: 13, cursor: "pointer", color: "#64748b" },
-  tabActive: { background: "#2563eb", color: "#fff", borderColor: "#2563eb" },
-  statsText: { fontSize: 13, color: "#94a3b8" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: 18 },
-  info: { textAlign: "center", color: "#94a3b8", padding: 60 },
-  errorText: { color: "#dc2626", background: "#fee2e2", padding: "12px 18px", borderRadius: 8 },
-  deleteBtn: { position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", fontSize: 16, opacity: 0.5 },
-};
