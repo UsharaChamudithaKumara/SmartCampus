@@ -1,16 +1,49 @@
-# React + Vite
+# Smart Campus Operations Hub - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React-based frontend for the Smart Campus Operations Hub. It is built using **Vite** for a fast development experience.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Prerequisites
+- Node.js (Latest LTS version recommended)
+- npm (comes with Node.js)
 
-## React Compiler
+### Installation
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Development
+To start the development server with Hot Module Replacement (HMR):
+```bash
+npm run dev
+```
+The application will be accessible at the URL provided in the terminal (usually `http://localhost:5173`).
 
-## Expanding the ESLint configuration
+### Production Build
+To create a production-ready build:
+```bash
+npm run build
+```
+The output will be generated in the `dist/` directory.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠 Tech Stack
+- **Library**: React 18+
+- **Build Tool**: Vite
+- **Styling**: Vanilla CSS / Bootstrap
+- **API Client**: Axios (Planned)
+
+## 📁 Structure
+- `src/components`: Reusable UI components.
+- `src/pages`: Main application views.
+- `src/services`: API communication logic.
+- `public`: Static assets.
+
+---
+
+🔥 **Developed as part of IT3030 PAF Assignment 2026**
