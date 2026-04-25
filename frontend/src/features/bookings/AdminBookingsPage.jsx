@@ -119,7 +119,7 @@ export default function AdminBookingsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight"
           >
-            Admin Booking Management
+             Booking Management
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, x: -20 }}
