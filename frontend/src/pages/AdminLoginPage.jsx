@@ -39,7 +39,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
 
       setStatus({ type: "success", message: "Admin login successful! Redirecting..." });
       setTimeout(() => {
-        navigate('/dashboard', { replace: true });
+        navigate('/admin', { replace: true });
       }, 1000);
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Login failed. Please try again." });

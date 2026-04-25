@@ -74,7 +74,7 @@ export default function LoginPage({ onLoginSuccess }) {
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => {
         if (data.role === 'ADMIN') {
-          navigate('/dashboard', { replace: true });
+          navigate('/admin', { replace: true });
         } else if (data.role === 'TECHNICIAN') {
           navigate('/staff/tickets', { replace: true });
         } else {
@@ -120,7 +120,7 @@ export default function LoginPage({ onLoginSuccess }) {
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
       setTimeout(() => {
         if (data.role === 'ADMIN') {
-          navigate('/dashboard', { replace: true });
+          navigate('/admin', { replace: true });
         } else if (data.role === 'TECHNICIAN') {
           navigate('/staff/tickets', { replace: true });
         } else {
