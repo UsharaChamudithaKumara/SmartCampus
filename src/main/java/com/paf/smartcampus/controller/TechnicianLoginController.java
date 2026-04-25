@@ -1,7 +1,9 @@
 package com.paf.smartcampus.controller;
 
+import com.paf.smartcampus.model.Technician;
 import com.paf.smartcampus.model.TechnicianLoginRequest;
 import com.paf.smartcampus.repository.TechnicianLoginRequestRepository;
+import com.paf.smartcampus.repository.TechnicianRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,9 @@ public class TechnicianLoginController {
 
     @Autowired
     private TechnicianLoginRequestRepository repository;
+
+    @Autowired
+    private TechnicianRepository technicianRepository;
 
     // GET all pending requests
     @GetMapping
@@ -62,6 +67,15 @@ public class TechnicianLoginController {
             loginReq.setApprovedAt(new Date());
             loginReq.setApprovedBy(adminEmail);
             repository.save(loginReq);
+
+            if (!technicianRepository.findByEmail(loginReq.getTechnicianEmail()).isPresent()) {
+                Technician technician = new Technician(
+                    loginReq.getTechnicianEmail(),
+                    loginReq.getTechnicianName(),
+                    loginReq.getTechnicianType() != null ? loginReq.getTechnicianType() : "GENERAL"
+                );
+                technicianRepository.save(technician);
+            }
 
             return new SuccessMsg("✅ Technician " + loginReq.getTechnicianEmail() + " approved successfully");
         } catch (Exception e) {

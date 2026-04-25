@@ -73,7 +73,13 @@ export default function LoginPage({ onLoginSuccess }) {
       
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        if (data.role === 'ADMIN') {
+          navigate('/dashboard', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }, 1000);
     } catch (err) {
       const errMsg = err.message || 'Login failed. Please try again.';
@@ -113,7 +119,13 @@ export default function LoginPage({ onLoginSuccess }) {
 
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        if (data.role === 'ADMIN') {
+          navigate('/dashboard', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }, 1000);
     } catch (err) {
       setStatus({ type: 'error', message: err.message || 'Google login failed. Please try again.' });
