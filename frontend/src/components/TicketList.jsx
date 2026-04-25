@@ -107,7 +107,7 @@ export function TicketList({ refreshKey = 0 }) {
   const role = sessionStorage.getItem('userRole')
   const currentUserId = sessionStorage.getItem('userEmail') || ''
   const currentUserName = sessionStorage.getItem('userName') || currentUserId
-  const canManage = true;
+  const canManage = role === 'ADMIN' || role === 'TECHNICIAN';
 
   async function load() {
     setLoading(true)
@@ -238,7 +238,7 @@ export function TicketList({ refreshKey = 0 }) {
     try {
       await addTicketComment(selectedTicket.id, {
         authorId: currentUserId,
-        authorName: currentUserName,
+        authorName: role === 'ADMIN' ? 'Admin' : currentUserName,
         text: commentText.trim(),
       })
       setCommentText('')
@@ -450,7 +450,20 @@ export function TicketList({ refreshKey = 0 }) {
   {canManage ? (
     <select
       value={ticket.status}
-      onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
+      onChange={async (e) => {
+        const newStatus = e.target.value
+        try {
+          await updateTicketStatus(ticket.id, newStatus)
+          setTickets((prev) =>
+            prev.map((t) =>
+              t.id === ticket.id ? { ...t, status: newStatus } : t
+            )
+          )
+          setLocalRefresh((v) => v + 1)
+        } catch (err) {
+          setActionError(err?.message || 'Failed to update status')
+        }
+      }}
       className="border rounded px-2 py-1 text-sm"
     >
       <option value="OPEN">OPEN</option>

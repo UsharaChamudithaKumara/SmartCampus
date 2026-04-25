@@ -29,7 +29,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
 
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("userEmail", data.email);
-      sessionStorage.setItem("userName", data.username);
+      sessionStorage.setItem("userName", data.username || "Admin");
       sessionStorage.setItem("userRole", data.role);
       sessionStorage.setItem("isLoggedIn", "true");
 

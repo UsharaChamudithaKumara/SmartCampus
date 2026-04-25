@@ -224,7 +224,7 @@ public class AuthController {
                 }
 
                 techType = techType.trim().toUpperCase();
-                if (!techType.matches("^(HARDWARE|SOFTWARE|NETWORK|GENERAL)$")) {
+                if (!techType.matches("^(IT|ELECTRICIAN|PLUMBER|CARPENTER|HVAC|PAINTER|GENERAL)$")) {
                     return new ErrorResponse("❌ Invalid technician type");
                 }
             }

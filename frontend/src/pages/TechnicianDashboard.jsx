@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchTicketsForTechnician, technicianResolveTicket } from "../api";
+import TicketCommentsModal from "../components/TicketCommentsModal";
 
 const STATUS_COLORS = {
   OPEN: { bg: "#fef3c7", text: "#b45309" },
@@ -16,6 +17,8 @@ export default function TechnicianDashboard() {
   const [resolveModal, setResolveModal] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [resolutionNotes, setResolutionNotes] = useState("");
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [commentsTicket, setCommentsTicket] = useState(null);
 
   const techEmail = sessionStorage.getItem("userEmail");
 
@@ -124,12 +127,23 @@ export default function TechnicianDashboard() {
                   </p>
                 </div>
 
-                <button
-                  onClick={() => handleResolveClick(ticket.id)}
-                  style={styles.resolveBtn}
-                >
-                  ✓ Mark as Resolved
-                </button>
+                <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                  <button
+                    onClick={() => handleResolveClick(ticket.id)}
+                    style={{ ...styles.resolveBtn, marginTop: 0, flex: 1 }}
+                  >
+                    ✓ Resolve
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCommentsTicket(ticket);
+                      setShowCommentsModal(true);
+                    }}
+                    style={{ ...styles.resolveBtn, marginTop: 0, flex: 1, background: "#6366f1" }}
+                  >
+                    💬 Comments ({ticket.comments?.length || 0})
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -167,6 +181,16 @@ export default function TechnicianDashboard() {
                 <p style={styles.pendingAdminText}>
                   ⏳ Waiting for admin to close this ticket
                 </p>
+
+                <button
+                  onClick={() => {
+                    setCommentsTicket(ticket);
+                    setShowCommentsModal(true);
+                  }}
+                  style={{ ...styles.resolveBtn, marginTop: "12px", background: "#6366f1" }}
+                >
+                  💬 Comments ({ticket.comments?.length || 0})
+                </button>
               </div>
             ))}
           </div>
@@ -208,6 +232,19 @@ export default function TechnicianDashboard() {
           </div>
         </div>
       )}
+
+      <TicketCommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => {
+          setShowCommentsModal(false);
+          setCommentsTicket(null);
+        }}
+        ticket={commentsTicket}
+        onCommentAdded={() => {
+          setShowCommentsModal(false);
+          loadAssignedTickets();
+        }}
+      />
     </div>
   );
 }

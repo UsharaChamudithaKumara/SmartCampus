@@ -178,7 +178,24 @@ public class TicketController {
         Ticket t = repo.findById(id).orElseThrow();
         t.setAssignedTo(technician);
         t.setStatus("IN_PROGRESS");
-        return repo.save(t);
+        Ticket saved = repo.save(t);
+
+        // Mock sending email
+        System.out.println("📧 EMAIL SENT TO TECHNICIAN: " + technician);
+        System.out.println("Subject: New Ticket Assigned");
+        System.out.println("Body: You have been assigned to ticket '" + t.getTitle() + "'. Please check your Staff Tickets.");
+
+        if (technician != null && !technician.isBlank()) {
+            notificationService.create(
+                    technician,
+                    "TICKET_ASSIGNED",
+                    "Ticket Assigned To You",
+                    "You have been assigned to ticket \"" + t.getTitle() + "\". Please check your Staff Tickets.",
+                    t.getId(),
+                    "TICKET");
+        }
+
+        return saved;
     }
 
     // GET tickets assigned to technician
@@ -219,7 +236,35 @@ public class TicketController {
         comment.setCreatedAt(new Date());
         comment.setUpdatedAt(null);
         t.getComments().add(comment);
-        return repo.save(t);
+        Ticket saved = repo.save(t);
+
+        String authorId = comment.getAuthorId();
+        
+        // Notify the ticket creator if they didn't write this comment
+        if (t.getUserId() != null && !t.getUserId().isBlank() && !t.getUserId().equals(authorId)) {
+            System.out.println("📧 EMAIL SENT TO STUDENT: " + t.getUserId() + " - Subject: New Comment on Ticket");
+            notificationService.create(
+                    t.getUserId(),
+                    "NEW_COMMENT",
+                    "New comment on your ticket",
+                    "A new comment was added to your ticket: " + t.getTitle(),
+                    t.getId(),
+                    "TICKET");
+        }
+
+        // Notify the assigned technician if they didn't write this comment
+        if (t.getAssignedTo() != null && !t.getAssignedTo().isBlank() && !t.getAssignedTo().equals(authorId)) {
+            System.out.println("📧 EMAIL SENT TO TECHNICIAN: " + t.getAssignedTo() + " - Subject: New Comment on Assigned Ticket");
+            notificationService.create(
+                    t.getAssignedTo(),
+                    "NEW_COMMENT",
+                    "New comment on assigned ticket",
+                    "A new comment was added to the ticket: " + t.getTitle(),
+                    t.getId(),
+                    "TICKET");
+        }
+
+        return saved;
     }
 
     // EDIT comment (author-only)
