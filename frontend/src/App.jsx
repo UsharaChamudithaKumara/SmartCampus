@@ -7,7 +7,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
 
 import DashboardPage from "./pages/DashboardPage";
@@ -18,8 +18,7 @@ import CreateTicketPage from "./pages/CreateTicketPage";
 import BookingsPage from "./pages/BookingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 
-import CataloguePage from "./pages/CataloguePage";
-import ViewCataloguePage from "./pages/ViewCataloguePage";
+
 import ResourceForm from "./components/ResourceForm";
 
 import ManageResourcesPage from "./components/ManageResourcesPage";
@@ -27,6 +26,9 @@ import ManageResourcesPage from "./components/ManageResourcesPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
+
 
 function Navigation({ userRole }) {
   const location = useLocation();
@@ -145,10 +147,14 @@ function AppShell({ userEmail, userRole, onLogout }) {
           <Route path="/create" element={<CreateTicketPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-          <Route path="/bookings" element={<BookingsPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/resource-form" element={<ResourceForm />} />
-          <Route path="/resource-list" element={<ManageResourcesPage />} />
+          <Route
+            path="/bookings"
+            element={userRole === "ADMIN" || userRole === "TECHNICIAN" ? <AdminBookingsPage /> : <BookingListPage />}
+          />
+          <Route
+            path="/notifications"
+            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
+          />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
