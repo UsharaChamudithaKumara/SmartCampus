@@ -1,47 +1,22 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2, Shield, Wrench, ArrowLeft } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
-import ForgotPasswordModal from "../components/ForgotPasswordModal";
-import GoogleSignInButton from "../components/GoogleSignInButton";
-import { googleLogin, login } from "../api";
-
-const TECHNICIAN_TYPES = [
-  { value: "PLUMBER", label: "Plumber" },
-  { value: "ELECTRICIAN", label: "Electrician" },
-  { value: "CARPENTER", label: "Carpenter" },
-  { value: "PAINTER", label: "Painter" },
-  { value: "HVAC", label: "HVAC Technician" },
-  { value: "GENERAL", label: "General Maintenance" },
-];
+import { Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { adminLogin } from "../api";
 
 export default function AdminLoginPage({ onLoginSuccess }) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [showForgotModal, setShowForgotModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [selectedTechType, setSelectedTechType] = useState(null);
-
-  const [form, setForm] = useState({ studentEmail: "", password: "" });
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
 
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function extractEmailFromCredential(credential) {
-    try {
-      const payload = credential?.split(".")?.[1];
-      if (!payload) return "";
-
-      const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-      const json = JSON.parse(atob(normalized));
-      return (json?.email || "").trim();
-    } catch {
-      return "";
-    }
   }
 
   async function handleLogin(e) {
@@ -50,23 +25,21 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     setStatus(null);
 
     try {
-      const role = selectedRole === 'TECHNICIAN' ? 'TECHNICIAN' : 'ADMIN';
-      const data = await login(form.studentEmail, form.password, role, selectedTechType);
-
-      const safeEmail = (data.studentEmail || data.email || form.studentEmail || '').trim();
-      const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
+      const data = await adminLogin(form.username, form.password);
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", safeEmail);
-      localStorage.setItem("userName", safeName);
+      localStorage.setItem("userEmail", data.email);
+      localStorage.setItem("userName", data.username);
       localStorage.setItem("userRole", data.role);
       localStorage.setItem("isLoggedIn", "true");
 
-      if (onLoginSuccess) onLoginSuccess(safeEmail);
+      if (onLoginSuccess) {
+        onLoginSuccess(data.email);
+      }
 
-      setStatus({ type: "success", message: "Login successful. Redirecting..." });
+      setStatus({ type: "success", message: "Admin login successful! Redirecting..." });
       setTimeout(() => {
-        navigate(data.role === "ADMIN" ? "/admin" : "/dashboard", { replace: true });
+        navigate('/dashboard', { replace: true });
       }, 1000);
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Login failed. Please try again." });
@@ -75,288 +48,184 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     }
   }
 
-  async function handleGoogleLogin(credential) {
-    setLoading(true);
-    setStatus(null);
-
-    try {
-      const role = selectedRole === 'TECHNICIAN' ? 'TECHNICIAN' : 'ADMIN';
-      const data = await googleLogin(credential, role, selectedTechType);
-
-      const gmailFromToken = extractEmailFromCredential(credential);
-      const safeEmail = (data.studentEmail || data.email || gmailFromToken || '').trim();
-      const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", safeEmail);
-      localStorage.setItem("userName", safeName);
-      localStorage.setItem("userRole", data.role);
-      localStorage.setItem("isLoggedIn", "true");
-
-      if (onLoginSuccess) onLoginSuccess(safeEmail);
-
-      setStatus({ type: "success", message: "Google login successful. Redirecting..." });
-      setTimeout(() => {
-        navigate(data.role === "ADMIN" ? "/admin" : "/dashboard", { replace: true });
-      }, 1000);
-    } catch (err) {
-      setStatus({ type: "error", message: err.message || "Google login failed. Please try again." });
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
-      <div className="absolute top-10 left-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-8 right-10 w-72 h-72 bg-cyan-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
+      <div className="absolute top-10 left-10 w-72 h-72 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="absolute -bottom-8 right-10 w-72 h-72 bg-orange-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-md"
       >
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="text-center mb-8"
         >
           <motion.div
-            variants={itemVariants}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 shadow-lg shadow-blue-600/30 mb-4"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 shadow-lg shadow-red-600/30 mb-4"
           >
-            <span className="text-2xl font-bold text-white">SC</span>
+            <ShieldCheck className="w-8 h-8 text-white" />
           </motion.div>
 
-          <motion.h1 variants={itemVariants} className="text-3xl font-bold text-slate-900 tracking-tight">
-            SmartCampus
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-3xl font-bold text-slate-900 tracking-tight"
+          >
+            Admin Portal
           </motion.h1>
-          <motion.p variants={itemVariants} className="text-slate-500 mt-2">
-            Admin & Technician Access
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-slate-500 mt-2"
+          >
+            Secure admin access
           </motion.p>
         </motion.div>
 
         <motion.div
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
           className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 backdrop-blur-sm"
         >
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
+          <motion.h2
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl font-bold text-slate-900 mb-6"
           >
-            <motion.h2 variants={itemVariants} className="text-xl font-bold text-slate-900 mb-6">
-              Select Your Role
-            </motion.h2>
+            Administrator Login
+          </motion.h2>
 
-            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
-              {[
-                { role: "ADMIN", label: "Admin", icon: Shield },
-                { role: "TECHNICIAN", label: "Technician", icon: Wrench },
-              ].map(({ role, label, icon: Icon }) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => {
-                    setSelectedRole(role);
-                    if (role !== "TECHNICIAN") setSelectedTechType(null);
-                  }}
-                  className={`rounded-xl px-4 py-3 text-sm font-semibold border-2 transition-all ${
-                    selectedRole === role
-                      ? "bg-blue-50 border-blue-500 text-blue-700"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  <Icon className="w-5 h-5 mx-auto mb-1" />
-                  {label}
-                </button>
-              ))}  
+          <form onSubmit={handleLogin} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+              <div className="relative">
+                <ShieldCheck className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter admin username"
+                  className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+                />
+              </div>
             </motion.div>
 
-            {selectedRole === "TECHNICIAN" && (
-              <motion.div variants={itemVariants} className="mb-6 rounded-xl border-2 border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-700 mb-3">Select Technician Type</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TECHNICIAN_TYPES.map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => setSelectedTechType(type.value)}
-                      className={`rounded-lg px-3 py-2 text-xs font-medium border transition-all ${
-                        selectedTechType === type.value
-                          ? "bg-blue-100 border-blue-500 text-blue-700"
-                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-
-
-            {selectedRole && (selectedRole !== "TECHNICIAN" || selectedTechType) && (
-              <>
-                <motion.button
-                  variants={itemVariants}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="••••••••"
+                  className="w-full pl-11 pr-11 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+                />
+                <button
                   type="button"
-                  onClick={() => {
-                    setSelectedRole(null);
-                    setSelectedTechType(null);
-                  }}
-                  className="mb-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Back to role selection
-                </motion.button>
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </motion.div>
 
+            <AnimatePresence>
+              {status && (
                 <motion.div
-                  variants={itemVariants}
-                  className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`p-4 rounded-xl flex items-start gap-3 ${
+                    status.type === "success"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
                 >
-                  <p className="text-sm font-semibold text-slate-700">Google login</p>
-                  <p className="text-xs text-slate-500 mt-1">Use your Google account to sign in.</p>
-                  <div className="mt-3">
-                    <GoogleSignInButton
-                      clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-                      onCredential={handleGoogleLogin}
-                      width={360}
-                    />
-                  </div>
+                  {status.type === "success" ? (
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  )}
+                  <p className="text-sm">{status.message}</p>
                 </motion.div>
+              )}
+            </AnimatePresence>
 
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <motion.div variants={itemVariants}>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-                      <input
-                        type="email"
-                        name="studentEmail"
-                        value={form.studentEmail}
-                        onChange={handleChange}
-                        required
-                        placeholder="name@example.com"
-                        className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
-                      />
-                    </div>
-                  </motion.div>
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </motion.button>
+          </form>
 
-                  <motion.div variants={itemVariants}>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                        placeholder="••••••••"
-                        className="w-full pl-11 pr-11 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  <motion.div variants={itemVariants} className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => setShowForgotModal(true)}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                    >
-                      Forgot password?
-                    </button>
-                  </motion.div>
-
-                  <AnimatePresence>
-                    {status && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className={`p-4 rounded-xl flex items-start gap-3 ${
-                          status.type === 'success'
-                            ? 'bg-green-50 text-green-700 border border-green-200'
-                            : 'bg-red-50 text-red-700 border border-red-200'
-                        }`}
-                      >
-                        {status.type === 'success' ? (
-                          <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                        )}
-                        <p className="text-sm">{status.message}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <motion.button
-                    variants={itemVariants}
-                    type="submit"
-                    disabled={loading}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Logging in...
-                      </>
-                    ) : (
-                      <>
-                        Sign In
-                        <ArrowRight className="w-5 h-5" />
-                      </>
-                    )}
-                  </motion.button>
-                </form>
-
-
-              </>
-            )}
-
-
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-center text-sm text-slate-600"
+          >
+            <p>
+              Not an admin?{" "}
+              <a href="/login" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+                Return to regular login
+              </a>
+            </p>
           </motion.div>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="text-center mt-6 text-sm text-slate-500">
-          &copy; {new Date().getFullYear()} SmartCampus. All rights reserved.
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.55 }}
+          className="text-center mt-6 text-sm text-slate-500"
+        >
+          &copy; {new Date().getFullYear()} SmartCampus Admin. All rights reserved.
         </motion.div>
       </motion.div>
-
-      <ForgotPasswordModal
-        isOpen={showForgotModal}
-        onClose={() => setShowForgotModal(false)}
-      />
 
       <style>{`
         @keyframes blob {

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Ticket, Building2, CalendarClock, Bell, Users, ArrowRight } from "lucide-react";
+import TechnicianLoginRequests from "../components/TechnicianLoginRequests";
 
 
 
@@ -74,7 +75,11 @@ export default function AdminConsolePage() {
           title="Facilities & Assets"
           description="Review and maintain campus resources, availability, and catalogue entries."
           icon={<Building2 className="w-5 h-5" />}
+
           onClick={() => navigate('/manage-resources')}
+
+          onClick={() => navigate('/admin/facilities')}
+
           delay={0.1}
         />
         <AdminActionCard
@@ -98,6 +103,10 @@ export default function AdminConsolePage() {
           onClick={() => navigate('/dashboard')}
           delay={0.25}
         />
+      </section>
+
+      <section>
+        <TechnicianLoginRequests />
       </section>
     </div>
   );
