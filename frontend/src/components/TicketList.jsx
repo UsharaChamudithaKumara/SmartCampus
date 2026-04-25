@@ -719,7 +719,7 @@ export function TicketList({ refreshKey = 0 }) {
                       <button
                         type="button"
                         onClick={handleAddComment}
-                        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                         disabled={saving}
                       >
                         <CornerRightUp className="w-4 h-4" />
@@ -786,7 +786,7 @@ export function TicketList({ refreshKey = 0 }) {
                           type="button"
                           onClick={handleStatusSave}
                           disabled={saving}
-                          className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
                           Save Status
                         </button>

@@ -168,16 +168,8 @@ export default function App() {
             <Route path="/admin/facilities" element={<ManageResourcesPage />} />
             <Route path="/catalogue" element={<CataloguePage />} />
             <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-            <Route
-              path="/bookings"
-              element={
-                userRole === "ADMIN" || userRole === "TECHNICIAN" ? (
-                  <AdminBookingsPage />
-                ) : (
-                  <BookingListPage />
-                )
-              }
-            />
+            <Route path="/bookings" element={<BookingListPage />} />
+            <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route
               path="/notifications"
               element={<NotificationsPage />}
