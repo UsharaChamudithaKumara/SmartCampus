@@ -31,3 +31,21 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+
+### Log Files ###
+*.log
+logs/
+
+### Build tools ###
+.mvn/
+mvnw
+mvnw.cmd
+
+### Local Environment ###
+.env
+.env.local
+.env.*.local
