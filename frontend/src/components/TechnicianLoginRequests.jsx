@@ -8,7 +8,7 @@ export default function TechnicianLoginRequests() {
   const [rejectModal, setRejectModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
-  const adminEmail = localStorage.getItem("userEmail");
+  const adminEmail = sessionStorage.getItem("userEmail");
 
   const loadRequests = async () => {
     try {

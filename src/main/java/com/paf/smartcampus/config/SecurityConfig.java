@@ -14,6 +14,7 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -21,7 +22,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/admin-auth/**").permitAll()
-                .requestMatchers("/api/tickets/**", "/api/resources/**", "/api/bookings/**", "/uploads/**").permitAll()
+                .requestMatchers("/api/tickets/**", "/api/resources/**", "/api/bookings/**", "/api/notifications/**", "/uploads/**").permitAll()
                 .requestMatchers("/api/technician-login-requests/**", "/api/technicians/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -36,6 +37,7 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

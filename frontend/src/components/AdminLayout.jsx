@@ -65,8 +65,8 @@ function AdminSidebar() {
 }
 
 export default function AdminLayout({ userEmail, onLogout }) {
-  const storedEmail = localStorage.getItem("userEmail");
-  const storedName = localStorage.getItem("userName");
+  const storedEmail = sessionStorage.getItem("userEmail");
+  const storedName = sessionStorage.getItem("userName");
   const rawEmail = userEmail || storedEmail || "";
   const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
   const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
@@ -91,9 +91,9 @@ export default function AdminLayout({ userEmail, onLogout }) {
               Administrator
             </div>
 
-            <button className="p-2 hover:bg-slate-100 rounded-full relative" title="Alerts">
+            <Link to="/notifications" className="p-2 hover:bg-slate-100 rounded-full relative" title="Alerts">
               <Bell className="w-5 h-5 text-slate-600" />
-            </button>
+            </Link>
 
             <div className="relative group">
               <button className="h-9 w-9 flex items-center justify-center bg-blue-600 text-white font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all shadow-sm" title={identityLabel}>

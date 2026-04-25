@@ -31,7 +31,7 @@ const AnimatedCounter = ({ value }) => {
 
 export default function TicketsPage() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("userRole");
+  const userRole = sessionStorage.getItem("userRole");
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
 
   const [stats, setStats] = useState({ total: 0, open: 0, inProgress: 0, resolved: 0 })

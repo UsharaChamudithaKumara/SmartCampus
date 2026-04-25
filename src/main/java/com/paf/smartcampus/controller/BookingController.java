@@ -19,14 +19,21 @@ public class BookingController {
     private BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody BookingRequestDTO dto) {
-        Booking created = bookingService.createBooking(dto, "temp-user-id", "temp@email.com");
+    public ResponseEntity<Booking> createBooking(
+            @RequestBody BookingRequestDTO dto,
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        String resolvedUserId = (userId == null || userId.isBlank()) ? "temp-user-id" : userId;
+        String resolvedUserEmail = (userEmail == null || userEmail.isBlank()) ? "temp@email.com" : userEmail;
+        Booking created = bookingService.createBooking(dto, resolvedUserId, resolvedUserEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Booking>> getMyBookings() {
-        return ResponseEntity.ok(bookingService.getMyBookings("temp-user-id"));
+    public ResponseEntity<List<Booking>> getMyBookings(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        String resolvedUserId = (userId == null || userId.isBlank()) ? "temp-user-id" : userId;
+        return ResponseEntity.ok(bookingService.getMyBookings(resolvedUserId));
     }
 
     @GetMapping
@@ -53,8 +60,11 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<Booking> cancelBooking(@PathVariable String id) {
-        return ResponseEntity.ok(bookingService.cancelBooking(id, "temp-user-id"));
+    public ResponseEntity<Booking> cancelBooking(
+            @PathVariable String id,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        String resolvedUserId = (userId == null || userId.isBlank()) ? "temp-user-id" : userId;
+        return ResponseEntity.ok(bookingService.cancelBooking(id, resolvedUserId));
     }
 
     @DeleteMapping("/{id}")

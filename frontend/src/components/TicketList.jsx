@@ -104,9 +104,9 @@ export function TicketList({ refreshKey = 0 }) {
   const [actionMessage, setActionMessage] = useState(null)
   const [saving, setSaving] = useState(false)
 
-  const role = localStorage.getItem('userRole')
-  const currentUserId = localStorage.getItem('userEmail') || ''
-  const currentUserName = localStorage.getItem('userName') || currentUserId
+  const role = sessionStorage.getItem('userRole')
+  const currentUserId = sessionStorage.getItem('userEmail') || ''
+  const currentUserName = sessionStorage.getItem('userName') || currentUserId
   const canManage = true;
 
   async function load() {

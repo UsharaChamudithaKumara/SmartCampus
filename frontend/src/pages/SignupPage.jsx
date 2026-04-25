@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, X } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Upload, X, Users, BookOpen, Wrench } from 'lucide-react';
 import { signup } from '../api';
+
+const ROLE_OPTIONS = [
+  { value: 'STUDENT', label: 'Student', icon: Users },
+  { value: 'LECTURER', label: 'Lecturer', icon: BookOpen },
+  { value: 'TECHNICIAN', label: 'Technician', icon: Wrench },
+];
+
+const TECHNICIAN_TYPES = [
+  { value: 'PLUMBER', label: 'Plumber' },
+  { value: 'ELECTRICIAN', label: 'Electrician' },
+  { value: 'CARPENTER', label: 'Carpenter' },
+  { value: 'PAINTER', label: 'Painter' },
+  { value: 'HVAC', label: 'HVAC Technician' },
+  { value: 'GENERAL', label: 'General Maintenance' },
+];
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -24,19 +39,21 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     profilePhoto: null,
+    role: '',
+    technicianType: '',
   });
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'itNumber') {
-      // Allow 2 letters + 8 digits (letters uppercase) or typing in progress
+    if (name === 'role') {
+      setFormData(prev => ({ ...prev, role: value, technicianType: value === 'TECHNICIAN' ? prev.technicianType : '' }));
+      setFieldErrors(prev => ({ ...prev, role: '', technicianType: '' }));
+    } else if (name === 'itNumber') {
       let v = value.toUpperCase();
-      v = v.replace(/[^A-Z0-9]/gi, '').slice(0, 10); // max 10 chars: 2 letters + 8 digits
+      v = v.replace(/[^A-Z0-9]/gi, '').slice(0, 10);
       setFormData(prev => ({ ...prev, [name]: v }));
       setFieldErrors(prev => ({ ...prev, itNumber: '' }));
     } else if (name === 'nicNumber') {
-      // Allow digits and trailing V/X letters (common NIC forms)
       let v = value.toUpperCase();
       v = v.replace(/[^0-9VX]/g, '').slice(0, 12);
       setFormData(prev => ({ ...prev, [name]: v }));
@@ -45,7 +62,6 @@ export default function SignupPage() {
       setFormData(prev => ({ ...prev, [name]: value }));
       setFieldErrors(prev => ({ ...prev, [name]: '' }));
     }
-
     setErrors([]);
   };
 
@@ -64,10 +80,12 @@ export default function SignupPage() {
         if (!formData.username || formData.username.trim() === '') msg = '❌ Username is required';
         break;
       case 'itNumber':
-        if (!formData.itNumber || formData.itNumber.trim() === '') {
-          msg = '❌ Student number is required (e.g., IT23456789)';
-        } else if (!/^[A-Za-z]{2}\d{8}$/.test(formData.itNumber)) {
-          msg = '❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)';
+        if (formData.role === 'STUDENT' || formData.role === '') {
+          if (!formData.itNumber || formData.itNumber.trim() === '') {
+            msg = '❌ Student number is required (e.g., IT23456789)';
+          } else if (!/^[A-Za-z]{2}\d{8}$/.test(formData.itNumber)) {
+            msg = '❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)';
+          }
         }
         break;
       case 'studentEmail':
@@ -84,6 +102,12 @@ export default function SignupPage() {
       case 'confirmPassword':
         if (!formData.confirmPassword) msg = '❌ Confirm password is required';
         else if (formData.password !== formData.confirmPassword) msg = '❌ Passwords do not match';
+        break;
+      case 'role':
+        if (!formData.role) msg = 'Role is required';
+        break;
+      case 'technicianType':
+        if (formData.role === 'TECHNICIAN' && !formData.technicianType) msg = 'Technician type is required';
         break;
       default:
         break;
@@ -119,7 +143,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData(prev => ({ ...prev, profilePhoto: reader.result }));
@@ -136,41 +159,44 @@ export default function SignupPage() {
   const validateForm = () => {
     const newErrors = [];
 
-    // Validate first name
     if (!formData.firstName || formData.firstName.trim() === '') {
       newErrors.push('❌ First name is required');
     }
 
-    // Validate last name
     if (!formData.lastName || formData.lastName.trim() === '') {
       newErrors.push('❌ Last name is required');
     }
 
-    // Validate username
     if (!formData.username || formData.username.trim() === '') {
       newErrors.push('❌ Username is required');
     }
 
-    // Validate student number (2 letters + 8 digits)
-    if (!formData.itNumber || formData.itNumber.trim() === '') {
-      newErrors.push('❌ Student number is required (format: 2 letters + 8 digits)');
-    } else if (!/^[A-Za-z]{2}\d{8}$/.test(formData.itNumber)) {
-      newErrors.push('❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)');
+    if (!formData.role) {
+      newErrors.push('Role is required');
     }
 
-    // Validate email using a normal email format
+    if (formData.role === 'TECHNICIAN' && !formData.technicianType) {
+      newErrors.push('Technician type is required');
+    }
+
+    if (formData.role === 'STUDENT' || formData.role === '') {
+      if (!formData.itNumber || formData.itNumber.trim() === '') {
+        newErrors.push('❌ Student number is required (format: 2 letters + 8 digits)');
+      } else if (!/^[A-Za-z]{2}\d{8}$/.test(formData.itNumber)) {
+        newErrors.push('❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)');
+      }
+    }
+
     if (!formData.studentEmail || formData.studentEmail.trim() === '') {
       newErrors.push('❌ Email is required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.studentEmail)) {
       newErrors.push('❌ Enter a valid email address');
     }
 
-    // Validate NIC number
     if (!formData.nicNumber || formData.nicNumber.trim() === '') {
       newErrors.push('❌ NIC number is required');
     }
 
-    // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
     if (!formData.password) {
       newErrors.push('❌ Password is required');
@@ -178,7 +204,6 @@ export default function SignupPage() {
       newErrors.push('❌ Password must have uppercase, lowercase, digit, special char (@$!%*?&), and 8+ characters');
     }
 
-    // Validate confirm password
     if (!formData.confirmPassword) {
       newErrors.push('❌ Confirm password is required');
     } else if (formData.password !== formData.confirmPassword) {
@@ -193,7 +218,6 @@ export default function SignupPage() {
     setErrors([]);
     setSuccess('');
 
-    // Validate all fields
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
@@ -212,20 +236,29 @@ export default function SignupPage() {
         formData.nicNumber,
         formData.password,
         formData.confirmPassword,
-        formData.profilePhoto
+        formData.profilePhoto,
+        formData.role,
+        formData.role === 'TECHNICIAN' ? formData.technicianType : null
       );
+
+      if (formData.role === 'TECHNICIAN' || !result.token) {
+        setSuccess(result.message || 'Technician registration submitted. Please wait for admin approval before logging in.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 1800);
+        return;
+      }
 
       setSuccess('✅ Account created successfully! Redirecting...');
 
       const safeEmail = (result.studentEmail || result.email || formData.studentEmail || '').trim();
       const safeName = [result.firstName, result.lastName].filter(Boolean).join(' ').trim() || result.username || safeEmail;
 
-      // Auto-login user
-      localStorage.setItem('token', result.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', result.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', result.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', result.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       setTimeout(() => {
         navigate(result.role === 'ADMIN' ? '/admin' : '/dashboard');
@@ -236,7 +269,6 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
-
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -253,7 +285,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center px-4 py-8">
-      {/* Floating background elements */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
       <div className="absolute -bottom-8 right-10 w-72 h-72 bg-cyan-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
@@ -263,7 +294,6 @@ export default function SignupPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-2xl"
       >
-        {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -285,14 +315,62 @@ export default function SignupPage() {
           </motion.p>
         </motion.div>
 
-        {/* Signup Card */}
         <motion.div
           variants={itemVariants}
           className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 backdrop-blur-sm"
         >
           <motion.div variants={containerVariants} initial="hidden" animate="show">
             <form onSubmit={handleSignup} className="space-y-4">
-              {/* Profile Photo */}
+              <motion.div variants={itemVariants}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Register As
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {ROLE_OPTIONS.map(({ value, label, icon: Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => handleChange({ target: { name: 'role', value } })}
+                      className={`rounded-xl px-4 py-3 text-sm font-semibold border-2 transition-all ${
+                        formData.role === value
+                          ? 'bg-blue-50 border-blue-500 text-blue-700'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 mx-auto mb-1" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {showFieldError('role')}
+              </motion.div>
+
+              {formData.role === 'TECHNICIAN' && (
+                <motion.div variants={itemVariants} className="rounded-xl border-2 border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-700 mb-3">Technician Type</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {TECHNICIAN_TYPES.map((type) => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => handleChange({ target: { name: 'technicianType', value: type.value } })}
+                        className={`rounded-lg px-3 py-2 text-xs font-medium border transition-all ${
+                          formData.technicianType === type.value
+                            ? 'bg-blue-100 border-blue-500 text-blue-700'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                  {showFieldError('technicianType')}
+                  <p className="mt-3 text-xs text-slate-500">
+                    Technician accounts need admin approval before login is enabled.
+                  </p>
+                </motion.div>
+              )}
+
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Profile Photo
@@ -327,7 +405,6 @@ export default function SignupPage() {
                 </div>
               </motion.div>
 
-              {/* First Name & Last Name */}
               <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -361,7 +438,6 @@ export default function SignupPage() {
                 </div>
               </motion.div>
 
-              {/* Username */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Username
@@ -378,7 +454,7 @@ export default function SignupPage() {
                 {showFieldError('username')}
               </motion.div>
 
-              {/* Student Number */}
+              {formData.role === 'STUDENT' ? (
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Student Number <span className="text-xs text-slate-500">(2 letters + 8 digits)</span>
@@ -399,8 +475,8 @@ export default function SignupPage() {
                   <p className="text-xs text-green-600 mt-1">✓ Valid ID</p>
                 )}
               </motion.div>
+              ) : null}
 
-              {/* Email */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Email
@@ -417,7 +493,6 @@ export default function SignupPage() {
                 {showFieldError('studentEmail')}
               </motion.div>
 
-              {/* NIC Number */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   NIC Number
@@ -435,7 +510,6 @@ export default function SignupPage() {
                 {showFieldError('nicNumber')}
               </motion.div>
 
-              {/* Password */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Password
@@ -468,7 +542,6 @@ export default function SignupPage() {
                 {showFieldError('password')}
               </motion.div>
 
-              {/* Confirm Password */}
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Confirm Password
@@ -498,7 +571,6 @@ export default function SignupPage() {
                 {showFieldError('confirmPassword')}
               </motion.div>
 
-              {/* Error Messages (All at once) */}
               {errors.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -516,7 +588,6 @@ export default function SignupPage() {
                 </motion.div>
               )}
 
-              {/* Success Message */}
               {success && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -528,7 +599,6 @@ export default function SignupPage() {
                 </motion.div>
               )}
 
-              {/* Submit Button */}
               <motion.button
                 variants={itemVariants}
                 type="submit"
@@ -541,7 +611,6 @@ export default function SignupPage() {
               </motion.button>
             </form>
 
-            {/* Login Link */}
             <motion.div variants={itemVariants} className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
               <p className="text-sm text-slate-600">
                 Already have an account?{' '}
@@ -570,4 +639,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
