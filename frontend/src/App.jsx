@@ -227,9 +227,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
-        <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace /> : <LoginPage onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/admin-login" element={isLoggedIn ? <Navigate to="/admin" replace /> : <AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/signup" element={isLoggedIn ? <Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace /> : <SignupPage />} />
         <Route
           path="/*"
           element={
