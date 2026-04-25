@@ -1,7 +1,6 @@
 package com.paf.smartcampus.controller;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Map;
@@ -21,7 +20,9 @@ import com.paf.smartcampus.dto.GoogleLoginRequest;
 import com.paf.smartcampus.dto.PasswordResetRequest;
 import com.paf.smartcampus.dto.SignupRequest;
 import com.paf.smartcampus.model.User;
+import com.paf.smartcampus.model.TechnicianLoginRequest;
 import com.paf.smartcampus.repository.UserRepository;
+import com.paf.smartcampus.repository.TechnicianLoginRequestRepository;
 import com.paf.smartcampus.util.JwtUtil;
 import com.paf.smartcampus.util.PasswordValidator;
 
@@ -38,6 +39,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TechnicianLoginRequestRepository technicianLoginRequestRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -201,8 +205,26 @@ public class AuthController {
             }
 
             foundUser.setRole(role);
+            String techType = null;
             if ("TECHNICIAN".equals(role)) {
-                foundUser.setTechnicianType(request.getTechnicianType().trim().toUpperCase());
+                techType = request.getTechnicianType().trim().toUpperCase();
+                foundUser.setTechnicianType(techType);
+                
+                // Check if technician has an approved login request
+                Optional<TechnicianLoginRequest> loginReq = technicianLoginRequestRepository.findByTechnicianEmail(foundUser.getStudentEmail());
+                if (!loginReq.isPresent() || !"APPROVED".equals(loginReq.get().getStatus())) {
+                    // Create or update PENDING request
+                    TechnicianLoginRequest newRequest = loginReq.orElse(new TechnicianLoginRequest(
+                            foundUser.getStudentEmail(),
+                            foundUser.getFirstName() + " " + foundUser.getLastName(),
+                            techType
+                    ));
+                    newRequest.setStatus("PENDING");
+                    newRequest.setTechnicianType(techType);
+                    technicianLoginRequestRepository.save(newRequest);
+                    
+                    return new ErrorResponse("❌ Technician login pending admin approval. Request submitted.");
+                }
             } else {
                 foundUser.setTechnicianType(null);
             }

@@ -4,6 +4,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2
 import { useNavigate, Link } from "react-router-dom";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
 import GoogleSignInButton from "../components/GoogleSignInButton";
+import TechnicianLoginStatus from "../components/TechnicianLoginStatus";
 import { googleLogin, login } from "../api";
 
 const TECHNICIAN_TYPES = [
@@ -21,6 +22,8 @@ export default function LoginPage({ onLoginSuccess }) {
   const [status, setStatus] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedTechType, setSelectedTechType] = useState(null);
+  const [showTechnicianStatus, setShowTechnicianStatus] = useState(false);
+  const [technicianEmail, setTechnicianEmail] = useState("");
   const [form, setForm] = useState({
     studentEmail: "",
     password: "",
@@ -48,6 +51,7 @@ export default function LoginPage({ onLoginSuccess }) {
     e.preventDefault();
     setLoading(true);
     setStatus(null);
+    setShowTechnicianStatus(false);
 
     try {
       const data = await login(form.studentEmail, form.password, selectedRole, selectedTechType);
@@ -67,10 +71,24 @@ export default function LoginPage({ onLoginSuccess }) {
       
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        if (data.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }, 1000);
     } catch (err) {
-      setStatus({ type: 'error', message: err.message || 'Login failed. Please try again.' });
+      const errMsg = err.message || 'Login failed. Please try again.';
+      
+      if (selectedRole === 'TECHNICIAN' && errMsg.includes('pending admin approval')) {
+        setShowTechnicianStatus(true);
+        setTechnicianEmail(form.studentEmail);
+        setStatus({ type: 'error', message: errMsg });
+      } else {
+        setStatus({ type: 'error', message: errMsg });
+      }
     } finally {
       setLoading(false);
     }
@@ -99,7 +117,13 @@ export default function LoginPage({ onLoginSuccess }) {
 
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
       setTimeout(() => {
-        navigate(data.role === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
+        if (data.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (data.role === 'TECHNICIAN') {
+          navigate('/staff/tickets', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }, 1000);
     } catch (err) {
       setStatus({ type: 'error', message: err.message || 'Google login failed. Please try again.' });
@@ -327,6 +351,16 @@ export default function LoginPage({ onLoginSuccess }) {
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {showTechnicianStatus && (
+                    <TechnicianLoginStatus 
+                      technicianEmail={technicianEmail}
+                      onApproved={() => {
+                        setShowTechnicianStatus(false);
+                        window.location.reload();
+                      }}
+                    />
+                  )}
 
                   {/* Login Button */}
                   <motion.button

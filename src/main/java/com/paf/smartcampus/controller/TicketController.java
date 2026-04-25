@@ -172,12 +172,41 @@ public class TicketController {
         return "✅ Status updated successfully";
     }
 
-    // ASSIGN technician
+    // ASSIGN technician (admin-only: status becomes IN_PROGRESS)
     @PutMapping("/{id}/assign")
-    public Ticket assign(@PathVariable String id, @RequestParam String technician) {
+    public Object assign(@PathVariable String id, @RequestParam String technician) {
         Ticket t = repo.findById(id).orElseThrow();
         t.setAssignedTo(technician);
         t.setStatus("IN_PROGRESS");
+        return repo.save(t);
+    }
+
+    // GET tickets assigned to technician
+    @GetMapping("/technician/{technicianEmail}")
+    public List<Ticket> getAssignedToTechnician(@PathVariable String technicianEmail) {
+        return repo.findByAssignedTo(technicianEmail);
+    }
+
+    // TECHNICIAN updates resolution notes (status becomes RESOLVED)
+    @PutMapping("/{id}/technician/resolve")
+    public Object technicianResolve(@PathVariable String id, @RequestParam String notes) {
+        Ticket t = repo.findById(id).orElseThrow();
+        if (t.getStatus() == null || (!t.getStatus().equals("IN_PROGRESS") && !t.getStatus().equals("OPEN"))) {
+            return "❌ Only IN_PROGRESS or OPEN tickets can be marked RESOLVED";
+        }
+        t.setResolutionNotes(notes);
+        t.setStatus("RESOLVED");
+        return repo.save(t);
+    }
+
+    // ADMIN closes RESOLVED ticket
+    @PutMapping("/{id}/admin/close")
+    public Object adminClose(@PathVariable String id) {
+        Ticket t = repo.findById(id).orElseThrow();
+        if (!"RESOLVED".equals(t.getStatus())) {
+            return "❌ Only RESOLVED tickets can be closed. Current status: " + t.getStatus();
+        }
+        t.setStatus("CLOSED");
         return repo.save(t);
     }
 
