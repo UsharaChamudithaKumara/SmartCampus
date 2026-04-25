@@ -97,11 +97,10 @@ const ViewCataloguePage = () => {
                         onChange={(e) => setFilters({...filters, location: e.target.value})}
                     >
                         <option value="">All locations</option>
-                        <option value="Building A">Building A</option>
+                        <option value="Building A">Main Building</option>
                         <option value="Engineering">Engineering Building</option>
-                        <option value="Building C">Building C</option>
-                        <option value="FOC">FOC Building</option>
-                        <option value="Library">Library</option>
+                        <option value="Building C">New Building</option>
+                       
                     </select>
 
                     <input 
@@ -146,16 +145,33 @@ const ResourceCard = ({ item }) => (
                     </div>
                 </div>
                 <div className={`flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${
-                    item.status === 'ACTIVE' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                    item.status === 'ACTIVE' || item.status === 'Active' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
                 }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'ACTIVE' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'ACTIVE' || item.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
                     {item.status}
                 </div>
             </div>
 
-            <p className="text-slate-500 text-sm leading-relaxed">
+            <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">
                 {item.description || "Facility available for booking and scheduled academic activities."}
             </p>
+
+            {/* NEW: Availability Section */}
+            <div className="space-y-2">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Slots</p>
+                <div className="flex flex-wrap gap-2">
+                    {item.availabilityWindows && item.availabilityWindows.length > 0 ? (
+                        item.availabilityWindows.map((slot, index) => (
+                            <div key={index} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2 py-1 rounded-md border border-slate-200 text-[11px] font-semibold">
+                                <Clock className="w-3 h-3 text-slate-400" />
+                                {slot}
+                            </div>
+                        ))
+                    ) : (
+                        <span className="text-xs text-slate-400 italic">No time slots specified</span>
+                    )}
+                </div>
+            </div>
 
             <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-y-3">
                 <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
@@ -165,10 +181,6 @@ const ResourceCard = ({ item }) => (
                 <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
                     <MapPin className="w-4 h-4 text-slate-400" />
                     <span className="truncate">{item.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 text-[11px] col-span-2 italic">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>Availability: {item.availabilityWindows || '08:00–18:00'}</span>
                 </div>
             </div>
         </div>
