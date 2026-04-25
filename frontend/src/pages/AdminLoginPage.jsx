@@ -4,7 +4,7 @@ import { Lock, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Loader2, Shie
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../api";
 
-export default function AdminLoginPage() {
+export default function AdminLoginPage({ onLoginSuccess }) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,6 +32,10 @@ export default function AdminLoginPage() {
       localStorage.setItem("userName", data.username);
       localStorage.setItem("userRole", data.role);
       localStorage.setItem("isLoggedIn", "true");
+
+      if (onLoginSuccess) {
+        onLoginSuccess(data.email);
+      }
 
       setStatus({ type: "success", message: "Admin login successful! Redirecting..." });
       setTimeout(() => {
