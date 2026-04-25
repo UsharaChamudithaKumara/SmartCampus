@@ -224,7 +224,7 @@ public class AuthController {
                 }
 
                 techType = techType.trim().toUpperCase();
-                if (!techType.matches("^(HARDWARE|SOFTWARE|NETWORK|GENERAL)$")) {
+                if (!techType.matches("^(IT|ELECTRICIAN|PLUMBER|CARPENTER|HVAC|PAINTER|GENERAL)$")) {
                     return new ErrorResponse("❌ Invalid technician type");
                 }
             }
@@ -516,7 +516,7 @@ public class AuthController {
      * GET /api/auth/validate?token=jwt-token
      */
     @GetMapping("/validate")
-    public Object validateToken(@RequestParam String token) {
+    public Object validateToken(@RequestParam("token") String token) {
         boolean isValid = jwtUtil.isTokenValid(token);
         if (isValid) {
             return new SuccessResponse("✅ Token is valid");

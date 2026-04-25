@@ -41,7 +41,7 @@ public class TechnicianLoginController {
 
     // GET request status for a technician
     @GetMapping("/status/{email}")
-    public Object getRequestStatus(@PathVariable String email) {
+    public Object getRequestStatus(@PathVariable("email") String email) {
         try {
             var request = repository.findByTechnicianEmail(email);
             if (request.isPresent()) {
@@ -55,7 +55,7 @@ public class TechnicianLoginController {
 
     // APPROVE technician login request (admin-only)
     @PutMapping("/{id}/approve")
-    public Object approveRequest(@PathVariable String id, @RequestParam String adminEmail) {
+    public Object approveRequest(@PathVariable("id") String id, @RequestParam("adminEmail") String adminEmail) {
         try {
             var request = repository.findById(id);
             if (!request.isPresent()) {
@@ -85,7 +85,7 @@ public class TechnicianLoginController {
 
     // REJECT technician login request (admin-only)
     @PutMapping("/{id}/reject")
-    public Object rejectRequest(@PathVariable String id, @RequestParam String reason) {
+    public Object rejectRequest(@PathVariable("id") String id, @RequestParam("reason") String reason) {
         try {
             var request = repository.findById(id);
             if (!request.isPresent()) {

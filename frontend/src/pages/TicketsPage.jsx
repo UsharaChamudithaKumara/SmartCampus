@@ -38,7 +38,8 @@ export default function TicketsPage() {
 
   async function loadStats() {
     try {
-      const data = await fetchVisibleTickets()
+      const rawData = await fetchVisibleTickets()
+      const data = Array.isArray(rawData) ? rawData : []
       const total = data.length
       const open = data.filter(t => t.status === 'OPEN').length
       const inProgress = data.filter(t => t.status === 'IN_PROGRESS').length

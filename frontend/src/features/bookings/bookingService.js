@@ -1,9 +1,15 @@
 const BASE_URL = "/api/bookings";
 
 async function request(path, options = {}) {
+	const userEmail = sessionStorage.getItem("userEmail") || "";
 	const res = await fetch(`${BASE_URL}${path}`, {
-		headers: { "Content-Type": "application/json", ...(options.headers || {}) },
 		...options,
+		headers: {
+			"Content-Type": "application/json",
+			"X-User-Id": userEmail,
+			"X-User-Email": userEmail,
+			...(options.headers || {}),
+		},
 	});
 
 	const text = await res.text();
