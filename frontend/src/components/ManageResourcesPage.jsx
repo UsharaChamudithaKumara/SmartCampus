@@ -84,7 +84,7 @@ const ManageResourcesPage = () => {
         </div>
         <button 
           onClick={() => { setSelectedResource(null); setIsModalOpen(true); }}
-          className="bg-[#1e293b] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-800 transition shadow-sm"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition shadow-sm"
         >
           <Plus size={20} /> Add Resource
         </button>
