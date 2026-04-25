@@ -15,6 +15,9 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
+
+import CataloguePage from "./pages/CataloguePage"; 
+import ViewCataloguePage from "./pages/ViewCataloguePage"; 
 import ResourceForm from "./components/ResourceForm";
 import ManageResourcesPage from "./components/ManageResourcesPage";
 import LoginPage from "./pages/LoginPage";
@@ -22,6 +25,8 @@ import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
 
 function Navigation({ userRole }) {
@@ -145,30 +150,26 @@ function AppShell({ userEmail, userRole, onLogout }) {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/admin" element={<AdminConsolePage />} />
-            <Route path="/tickets" element={<TicketsPage />} />
-            <Route path="/admin/tickets" element={<AdminTicketsPage />} />
-            <Route path="/staff/tickets" element={<TicketsPage />} />
-            <Route path="/create" element={<CreateTicketPage />} />
-            <Route path="/catalogue" element={<CataloguePage />} />
-            <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-            <Route path="/resource-form" element={<ResourceForm />} />
-           <Route path="/manage-resources" element={<ManageResourcesPage />} /> 
-            <Route
-              path="/bookings"
-              element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
-            />
-            <Route
-              path="/notifications"
-              element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
-            />
-            <Route path="*" element={<Navigate to="/admin" replace />} />
-          </Routes>
-        </AnimatePresence>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/admin" element={<AdminConsolePage />} />
+          <Route path="/tickets" element={<TicketsPage />} />
+          <Route path="/admin/tickets" element={<AdminTicketsPage />} />
+          <Route path="/staff/tickets" element={<TicketsPage />} />
+          <Route path="/create" element={<CreateTicketPage />} />
+          <Route path="/catalogue" element={<CataloguePage />} />
+          <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
+          <Route
+            path="/bookings"
+            element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
+          />
+          <Route
+            path="/notifications"
+            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
+          />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </main>
 
       <footer className="bg-white border-t py-4 text-center text-xs text-slate-400">
