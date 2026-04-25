@@ -21,3 +21,4 @@ public class Resource {
     // Status MUST support "ACTIVE" or "OUT_OF_SERVICE" 
     private String status; 
 }
+
