@@ -16,8 +16,7 @@ import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 
-import CataloguePage from "./pages/CataloguePage"; 
-import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+
 import ResourceForm from "./components/ResourceForm";
 
 import AdminResourceList from "./components/ManageResourcesPage";
@@ -29,6 +28,8 @@ import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminTicketsPage from "./pages/AdminTicketsPage";
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
 
 function Navigation({ userRole }) {
@@ -146,8 +147,6 @@ function AppShell({ userEmail, userRole, onLogout }) {
             </div>
           </div>
 
-
-
           <Navigation userRole={userRole} />
         </div>
       </header>
@@ -166,7 +165,7 @@ function AppShell({ userEmail, userRole, onLogout }) {
           <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
           <Route
             path="/bookings"
-            element={userRole === "ADMIN" ? <AdminBookingsPage /> : <BookingListPage />}
+            element={userRole === "ADMIN" || userRole === "TECHNICIAN" ? <AdminBookingsPage /> : <BookingListPage />}
           />
           <Route
             path="/notifications"
