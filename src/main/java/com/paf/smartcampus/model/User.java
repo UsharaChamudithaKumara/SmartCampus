@@ -32,7 +32,7 @@ public class User {
 
     private String profilePhoto; // URL to profile photo
 
-    private String role = "USER"; // USER, TECHNICIAN, ADMIN, LECTURER
+    private String role = "STUDENT"; // STUDENT, TECHNICIAN, ADMIN, LECTURER
 
     private String technicianType; // HARDWARE, SOFTWARE, NETWORK, GENERAL (only for TECHNICIAN role)
 
@@ -58,7 +58,7 @@ public class User {
         this.username = username;
         this.nicNumber = nicNumber;
         this.profilePhoto = profilePhoto;
-        this.role = "USER";
+        this.role = "STUDENT";
         this.enabled = true;
         this.createdAt = new Date();
         this.updatedAt = new Date();

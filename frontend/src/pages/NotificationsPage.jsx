@@ -10,7 +10,7 @@ function formatWhen(ts) {
 }
 
 export default function NotificationsPage() {
-  const userEmail = localStorage.getItem("userEmail") || "";
+  const userEmail = sessionStorage.getItem("userEmail") || "";
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [markingAll, setMarkingAll] = useState(false);
