@@ -26,7 +26,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage";
-import AdminTicketsPage from "./pages/AdminTicketsPage";
+import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
 import BookingListPage from "./features/bookings/BookingListPage";
 import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
@@ -36,7 +37,7 @@ function Navigation({ userRole }) {
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
-    { path: "/catalogue", label: "Facilities & Assets" },
+    { path: userRole === "ADMIN" ? "/admin/facilities" : "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "Booking Management" },
     {
   path:
@@ -157,9 +158,10 @@ function AppShell({ userEmail, userRole, onLogout }) {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin" element={<AdminConsolePage />} />
           <Route path="/tickets" element={<TicketsPage />} />
-          <Route path="/admin/tickets" element={<AdminTicketsPage />} />
-          <Route path="/staff/tickets" element={<TicketsPage />} />
+          <Route path="/admin/tickets" element={<AdminTicketsPageNew />} />
+          <Route path="/staff/tickets" element={<TechnicianDashboard />} />
           <Route path="/create" element={<CreateTicketPage />} />
+          <Route path="/admin/facilities" element={<ManageResourcesPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
           <Route
@@ -224,24 +226,21 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      {!isLoggedIn ? (
-        <Routes>
-          <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      ) : (
-        <>
-          <Routes>
-            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin-login" element={<Navigate to="/admin" replace />} />
-            <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={null} />
-          </Routes>
-          <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} />
-        </>
-      )}
+      <Routes>
+        <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/*"
+          element={
+            isLoggedIn ? (
+              <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

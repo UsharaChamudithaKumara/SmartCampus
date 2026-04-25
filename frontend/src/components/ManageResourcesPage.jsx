@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, LayoutGrid } from 'lucide-react';
-import AdminResourceList from './ManageResourcesPage';
+import ResourceList from './ResourceList';
 import ResourceFormModal from './ResourceForm'; 
 
 const ManageResourcesPage = () => {
@@ -32,7 +32,7 @@ const ManageResourcesPage = () => {
 
             {/* THE BORDERED TABLE CONTAINER */}
             <div className="px-8">
-                <AdminResourceList refreshTrigger={refreshTrigger} />
+                <ResourceList refreshTrigger={refreshTrigger} />
             </div>
 
             {/* POPUP MODAL FOR FORM */}
