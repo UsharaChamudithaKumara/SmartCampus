@@ -17,7 +17,7 @@ export default function TechnicianDashboard() {
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [resolutionNotes, setResolutionNotes] = useState("");
 
-  const techEmail = localStorage.getItem("userEmail");
+  const techEmail = sessionStorage.getItem("userEmail");
 
   const loadAssignedTickets = async () => {
     if (!techEmail) {

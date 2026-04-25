@@ -59,11 +59,11 @@ export default function LoginPage({ onLoginSuccess }) {
       const safeEmail = (data.studentEmail || data.email || form.studentEmail || '').trim();
       const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', data.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
         onLoginSuccess(safeEmail);
@@ -105,11 +105,11 @@ export default function LoginPage({ onLoginSuccess }) {
       const safeEmail = (data.studentEmail || data.email || gmailFromToken || '').trim();
       const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', data.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
         onLoginSuccess(safeEmail);

@@ -77,7 +77,7 @@ function ModuleCard({ title, description, icon, linkText, to, delay = 0 }) {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("userRole");
+  const userRole = sessionStorage.getItem("userRole");
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const [tickets, setTickets] = useState([]);
   const [resources, setResources] = useState([]);

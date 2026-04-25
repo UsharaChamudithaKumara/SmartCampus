@@ -27,11 +27,11 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     try {
       const data = await adminLogin(form.username, form.password);
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", data.email);
-      localStorage.setItem("userName", data.username);
-      localStorage.setItem("userRole", data.role);
-      localStorage.setItem("isLoggedIn", "true");
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("userEmail", data.email);
+      sessionStorage.setItem("userName", data.username);
+      sessionStorage.setItem("userRole", data.role);
+      sessionStorage.setItem("isLoggedIn", "true");
 
       if (onLoginSuccess) {
         onLoginSuccess(data.email);

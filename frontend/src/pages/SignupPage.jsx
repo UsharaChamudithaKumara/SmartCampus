@@ -254,11 +254,11 @@ export default function SignupPage() {
       const safeEmail = (result.studentEmail || result.email || formData.studentEmail || '').trim();
       const safeName = [result.firstName, result.lastName].filter(Boolean).join(' ').trim() || result.username || safeEmail;
 
-      localStorage.setItem('token', result.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', result.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', result.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', result.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       setTimeout(() => {
         navigate(result.role === 'ADMIN' ? '/admin' : '/dashboard');

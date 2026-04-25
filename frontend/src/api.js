@@ -42,8 +42,8 @@ export async function fetchTicketsByUser(userId) {
 }
 
 export async function fetchVisibleTickets() {
-  const role = localStorage.getItem('userRole');
-  const userEmail = localStorage.getItem('userEmail');
+  const role = sessionStorage.getItem('userRole');
+  const userEmail = sessionStorage.getItem('userEmail');
 
   if (role === 'ADMIN' || role === 'TECHNICIAN') {
     return fetchTickets();
@@ -320,8 +320,8 @@ export async function deleteResource(id) {
 
 // Bookings API
 export async function createBooking(booking) {
-  const userEmail = localStorage.getItem('userEmail') || '';
-  const userId = localStorage.getItem('userEmail') || '';
+  const userEmail = sessionStorage.getItem('userEmail') || '';
+  const userId = sessionStorage.getItem('userEmail') || '';
   const res = await fetch(BASE_BOOKINGS, {
     method: 'POST',
     headers: {
@@ -335,7 +335,7 @@ export async function createBooking(booking) {
 }
 
 export async function fetchMyBookings() {
-  const userId = localStorage.getItem('userEmail') || '';
+  const userId = sessionStorage.getItem('userEmail') || '';
   const res = await fetch(`${BASE_BOOKINGS}/my`, {
     headers: {
       'X-User-Id': userId,
