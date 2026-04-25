@@ -7,10 +7,10 @@ function AdminSidebar() {
   const location = useLocation();
   const navItems = [
     { path: "/admin", label: "Admin Console", icon: LayoutDashboard },
-    { path: "/admin/facilities", label: "Facilities & Assets", icon: FolderKanban },
-    { path: "/bookings", label: "Booking Management", icon: CalendarRange },
-    { path: "/admin/tickets", label: "Admin Tickets", icon: Ticket },
-    { path: "/notifications", label: "Notifications", icon: BellRing },
+    { path: "/admin/facilities", label: "Facilities & Asset Management", icon: FolderKanban },
+    { path: "/admin/bookings", label: "Booking Management", icon: CalendarRange },
+    { path: "/admin/tickets", label: "Ticket Management", icon: Ticket },
+    { path: "/notifications", label: "Notification Management", icon: BellRing },
   ];
 
   return (

@@ -134,37 +134,45 @@ export default function BookingListPage() {
         initial="hidden"
         animate="show"
         variants={{ show: { transition: { staggerChildren: 0.1 } } }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-left"
       >
-        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><ClipboardList className="w-6 h-6" /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Total Bookings</p>
-            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.total} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-blue-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300"><ClipboardList size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Total Bookings</p>
+            </div>
+            <h3 className="text-3xl font-bold text-slate-900 mt-2"><AnimatedCounter value={counts.total} /></h3>
           </div>
         </motion.div>
 
-        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-yellow-100 text-yellow-600 rounded-xl"><Clock className="w-6 h-6" /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Pending</p>
-            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.pending} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-amber-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300"><Clock size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Pending</p>
+            </div>
+            <h3 className="text-3xl font-bold text-amber-600 mt-2"><AnimatedCounter value={counts.pending} /></h3>
           </div>
         </motion.div>
 
-        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-green-100 text-green-600 rounded-xl"><CheckCircle2 className="w-6 h-6" /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Approved</p>
-            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.approved} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-emerald-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300"><CheckCircle2 size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Approved</p>
+            </div>
+            <h3 className="text-3xl font-bold text-emerald-600 mt-2"><AnimatedCounter value={counts.approved} /></h3>
           </div>
         </motion.div>
 
-        <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-slate-100 text-slate-500 rounded-xl"><XCircle className="w-6 h-6" /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Cancelled</p>
-            <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={counts.cancelled} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-rose-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-rose-500 group-hover:text-white transition-colors duration-300"><XCircle size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Cancelled</p>
+            </div>
+            <h3 className="text-3xl font-bold text-rose-600 mt-2"><AnimatedCounter value={counts.cancelled} /></h3>
           </div>
         </motion.div>
       </motion.div>

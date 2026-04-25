@@ -93,10 +93,8 @@ export default function App() {
             <Route path="/admin/facilities" element={<ManageResourcesPage />} />
             <Route path="/catalogue" element={<CataloguePage />} />
             <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-            <Route
-              path="/bookings"
-              element={userRole === "ADMIN" || userRole === "TECHNICIAN" ? <AdminBookingsPage /> : <BookingListPage />}
-            />
+            <Route path="/bookings" element={<BookingListPage />} />
+            <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route
               path="/notifications"
               element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}

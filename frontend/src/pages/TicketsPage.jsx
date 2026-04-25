@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import TicketList from "../components/TicketList";
-import { Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Plus, CheckCircle2, Clock, AlertCircle, Ticket } from "lucide-react";
 import { fetchVisibleTickets } from "../api";
 
 // Animated Counter Component
@@ -126,46 +126,48 @@ export default function TicketsPage() {
       <motion.div
         initial="hidden"
         animate="show"
-        variants={{
-          show: {
-            transition: {
-              staggerChildren: 0.1,
-            },
-          },
-        }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        variants={{ show: { transition: { staggerChildren: 0.1 } } }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-left"
       >
-          <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3 bg-slate-100 text-slate-600 rounded-xl"><AlertCircle className="w-6 h-6" /></div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Total Tickets</p>
-              <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={stats.total} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-blue-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300"><Ticket size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Total Tickets</p>
             </div>
-          </motion.div>
+            <h3 className="text-3xl font-bold text-slate-900 mt-2"><AnimatedCounter value={stats.total} /></h3>
+          </div>
+        </motion.div>
 
-          <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3 bg-yellow-100 text-yellow-600 rounded-xl"><AlertCircle className="w-6 h-6" /></div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Open</p>
-              <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={stats.open} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-amber-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300"><AlertCircle size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Open</p>
             </div>
-          </motion.div>
+            <h3 className="text-3xl font-bold text-amber-600 mt-2"><AnimatedCounter value={stats.open} /></h3>
+          </div>
+        </motion.div>
 
-          <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Clock className="w-6 h-6" /></div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">In Progress</p>
-              <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={stats.inProgress} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-indigo-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-500 group-hover:text-white transition-colors duration-300"><Clock size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">In Progress</p>
             </div>
-          </motion.div>
+            <h3 className="text-3xl font-bold text-indigo-600 mt-2"><AnimatedCounter value={stats.inProgress} /></h3>
+          </div>
+        </motion.div>
 
-          <motion.div variants={statsVariants} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3 bg-green-100 text-green-600 rounded-xl"><CheckCircle2 className="w-6 h-6" /></div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Resolved</p>
-              <p className="text-2xl font-bold text-slate-900"><AnimatedCounter value={stats.resolved} /></p>
+        <motion.div variants={statsVariants}>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-b-4 border-b-emerald-500 group">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300"><CheckCircle2 size={20} /></div>
+              <p className="text-slate-500 text-sm font-medium">Resolved</p>
             </div>
-          </motion.div>
+            <h3 className="text-3xl font-bold text-emerald-600 mt-2"><AnimatedCounter value={stats.resolved} /></h3>
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* Ticket List */}
