@@ -73,13 +73,7 @@ export default function LoginPage({ onLoginSuccess }) {
       
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => {
-        if (data.role === 'ADMIN') {
-          navigate('/dashboard', { replace: true });
-        } else if (data.role === 'TECHNICIAN') {
-          navigate('/staff/tickets', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
+        navigate('/dashboard', { replace: true });
       }, 1000);
     } catch (err) {
       const errMsg = err.message || 'Login failed. Please try again.';
@@ -119,13 +113,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
       setStatus({ type: 'success', message: 'Google login successful! Redirecting...' });
       setTimeout(() => {
-        if (data.role === 'ADMIN') {
-          navigate('/dashboard', { replace: true });
-        } else if (data.role === 'TECHNICIAN') {
-          navigate('/staff/tickets', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
+        navigate('/dashboard', { replace: true });
       }, 1000);
     } catch (err) {
       setStatus({ type: 'error', message: err.message || 'Google login failed. Please try again.' });
@@ -257,20 +245,22 @@ export default function LoginPage({ onLoginSuccess }) {
                   <ArrowLeft className="w-4 h-4" /> Back to role selection
                 </motion.button>
 
-                <motion.div
-                  variants={itemVariants}
-                  className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                >
-                  <p className="text-sm font-semibold text-slate-700">Google login</p>
-                  <p className="text-xs text-slate-500 mt-1">Use your Google account to sign in.</p>
-                  <div className="mt-3">
-                    <GoogleSignInButton
-                      clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-                      onCredential={(credential) => handleGoogleLogin(credential)}
-                      width={360}
-                    />
-                  </div>
-                </motion.div>
+                {selectedRole !== "TECHNICIAN" && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <p className="text-sm font-semibold text-slate-700">Google login</p>
+                    <p className="text-xs text-slate-500 mt-1">Use your Google account to sign in.</p>
+                    <div className="mt-3">
+                      <GoogleSignInButton
+                        clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+                        onCredential={(credential) => handleGoogleLogin(credential)}
+                        width={360}
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   {/* Email Input */}
