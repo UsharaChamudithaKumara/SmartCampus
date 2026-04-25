@@ -97,11 +97,16 @@ export default function LoginPage({ onLoginSuccess }) {
   }
 
   async function handleGoogleLogin(credential) {
+    if (!selectedRole) {
+      setStatus({ type: 'error', message: 'Please select your role first before using Google Login.' });
+      return;
+    }
+
     setLoading(true);
     setStatus(null);
 
     try {
-      const data = await googleLogin(credential, null);
+      const data = await googleLogin(credential, selectedRole);
 
       const gmailFromToken = extractEmailFromCredential(credential);
       const safeEmail = (data.studentEmail || data.email || gmailFromToken || '').trim();

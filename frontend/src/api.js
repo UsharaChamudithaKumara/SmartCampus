@@ -20,6 +20,10 @@ async function parseResponseOrThrow(res, fallbackMessage) {
     throw new Error(parsed?.error || text || fallbackMessage);
   }
 
+  if (parsed && parsed.error) {
+    throw new Error(parsed.error);
+  }
+
   return parsed ?? text;
 }
 

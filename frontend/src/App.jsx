@@ -20,8 +20,7 @@ import CreateTicketPage from "./pages/CreateTicketPage";
 
 
 
-import CataloguePage from "./pages/CataloguePage"; 
-import ViewCataloguePage from "./pages/ViewCataloguePage"; 
+
 
 import ResourceForm from "./components/ResourceForm";
 
@@ -157,29 +156,7 @@ function AppShell({ userEmail, userRole, onLogout }) {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/admin" element={<AdminConsolePage />} />
-          <Route path="/tickets" element={<TicketsPage />} />
-          <Route path="/admin/tickets" element={<AdminTicketsPage />} />
-          <Route path="/staff/tickets" element={<TicketsPage />} />
-          <Route path="/create" element={<CreateTicketPage />} />
-          <Route path="/catalogue" element={<CataloguePage />} />
-          <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-          <Route
-            path="/bookings"
-            element={<PlaceholderPage title="Booking Management" description="Booking workflow (PENDING, APPROVED, REJECTED, CANCELLED) can be implemented in this module." />}
-          />
-          <Route
-            path="/notifications"
-            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
-          />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
         <Outlet />
-
       </main>
 
       <footer className="bg-white border-t py-4 text-center text-xs text-slate-400">
@@ -255,20 +232,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>
-
-      ) : (
-        <>
-          <Routes>
-            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
-            <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={null} />
-          </Routes>
-          <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} />
-        </>
-
-
       )}
-    </BrowserRouter>
+        </BrowserRouter>
   );
 }
