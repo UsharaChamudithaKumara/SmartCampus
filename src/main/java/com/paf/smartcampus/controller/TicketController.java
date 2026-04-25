@@ -60,7 +60,7 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public Ticket getById(@PathVariable String id) {
+    public Ticket getById(@PathVariable("id") String id) {
         return repo.findById(id).orElseThrow();
     }
 
@@ -72,7 +72,7 @@ public class TicketController {
 
     // GET tickets by user
     @GetMapping("/user/{userId}")
-    public List<Ticket> getByUser(@PathVariable String userId) {
+    public List<Ticket> getByUser(@PathVariable("userId") String userId) {
         return repo.findByUserId(userId);
     }
 
@@ -93,7 +93,7 @@ public class TicketController {
 
     // Single file upload (keeps compatibility)
     @PostMapping("/{id}/upload")
-    public String uploadImage(@PathVariable String id,
+    public String uploadImage(@PathVariable("id") String id,
                               @RequestParam("file") MultipartFile file) {
 
         try {
@@ -127,7 +127,7 @@ public class TicketController {
 
     // Multi-file upload (max 3)
     @PostMapping("/{id}/uploads")
-    public String uploadImages(@PathVariable String id, @RequestParam("files") MultipartFile[] files) {
+    public String uploadImages(@PathVariable("id") String id, @RequestParam("files") MultipartFile[] files) {
         if (files == null || files.length == 0) return "❌ No files provided";
         if (files.length > 3) return "❌ Maximum 3 images allowed";
         try {
@@ -151,7 +151,7 @@ public class TicketController {
 
     // UPDATE status with validation (REJECTED requires reason)
     @PutMapping("/{id}/status")
-    public String updateStatus(@PathVariable String id, @RequestParam String status, @RequestParam(required = false) String reason) {
+    public String updateStatus(@PathVariable("id") String id, @RequestParam("status") String status, @RequestParam(value = "reason", required = false) String reason) {
 
         if (!isValidStatus(status)) {
             return "❌ Invalid status!";
@@ -174,7 +174,7 @@ public class TicketController {
 
     // ASSIGN technician (admin-only: status becomes IN_PROGRESS)
     @PutMapping("/{id}/assign")
-    public Object assign(@PathVariable String id, @RequestParam String technician) {
+    public Object assign(@PathVariable("id") String id, @RequestParam("technician") String technician) {
         Ticket t = repo.findById(id).orElseThrow();
         t.setAssignedTo(technician);
         t.setStatus("IN_PROGRESS");
@@ -200,13 +200,13 @@ public class TicketController {
 
     // GET tickets assigned to technician
     @GetMapping("/technician/{technicianEmail}")
-    public List<Ticket> getAssignedToTechnician(@PathVariable String technicianEmail) {
+    public List<Ticket> getAssignedToTechnician(@PathVariable("technicianEmail") String technicianEmail) {
         return repo.findByAssignedTo(technicianEmail);
     }
 
     // TECHNICIAN updates resolution notes (status becomes RESOLVED)
     @PutMapping("/{id}/technician/resolve")
-    public Object technicianResolve(@PathVariable String id, @RequestParam String notes) {
+    public Object technicianResolve(@PathVariable("id") String id, @RequestParam("notes") String notes) {
         Ticket t = repo.findById(id).orElseThrow();
         if (t.getStatus() == null || (!t.getStatus().equals("IN_PROGRESS") && !t.getStatus().equals("OPEN"))) {
             return "❌ Only IN_PROGRESS or OPEN tickets can be marked RESOLVED";
@@ -218,7 +218,7 @@ public class TicketController {
 
     // ADMIN closes RESOLVED ticket
     @PutMapping("/{id}/admin/close")
-    public Object adminClose(@PathVariable String id) {
+    public Object adminClose(@PathVariable("id") String id) {
         Ticket t = repo.findById(id).orElseThrow();
         if (!"RESOLVED".equals(t.getStatus())) {
             return "❌ Only RESOLVED tickets can be closed. Current status: " + t.getStatus();
@@ -229,7 +229,7 @@ public class TicketController {
 
     // ADD comment
     @PostMapping("/{id}/comments")
-    public Ticket addComment(@PathVariable String id, @RequestBody Comment comment) {
+    public Ticket addComment(@PathVariable("id") String id, @RequestBody Comment comment) {
         Ticket t = repo.findById(id).orElseThrow();
         ensureCommentsList(t);
         comment.setId(UUID.randomUUID().toString());
@@ -269,7 +269,7 @@ public class TicketController {
 
     // EDIT comment (author-only)
     @PutMapping("/{id}/comments/{commentId}")
-    public Object editComment(@PathVariable String id, @PathVariable String commentId, @RequestBody Map<String, String> payload) {
+    public Object editComment(@PathVariable("id") String id, @PathVariable("commentId") String commentId, @RequestBody Map<String, String> payload) {
         Ticket t = repo.findById(id).orElseThrow();
         if (t.getComments() == null) return "❌ No comments";
         for (Comment c : t.getComments()) {
@@ -288,7 +288,7 @@ public class TicketController {
 
     // DELETE comment (author-only)
     @DeleteMapping("/{id}/comments/{commentId}")
-    public Object deleteComment(@PathVariable String id, @PathVariable String commentId, @RequestParam String authorId) {
+    public Object deleteComment(@PathVariable("id") String id, @PathVariable("commentId") String commentId, @RequestParam("authorId") String authorId) {
         Ticket t = repo.findById(id).orElseThrow();
         if (t.getComments() == null) return "❌ No comments";
         Iterator<Comment> it = t.getComments().iterator();
@@ -307,7 +307,7 @@ public class TicketController {
 
     // Add or update resolution notes (sets status RESOLVED when notes provided)
     @PutMapping("/{id}/resolution")
-    public Ticket addResolution(@PathVariable String id, @RequestParam String notes) {
+    public Ticket addResolution(@PathVariable("id") String id, @RequestParam("notes") String notes) {
         Ticket t = repo.findById(id).orElseThrow();
         t.setResolutionNotes(notes);
         if (notes != null && !notes.isBlank()) {

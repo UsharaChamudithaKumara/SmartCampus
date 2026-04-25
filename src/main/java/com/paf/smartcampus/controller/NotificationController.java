@@ -27,12 +27,12 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getByUser(@RequestParam String userEmail) {
+    public ResponseEntity<List<Notification>> getByUser(@RequestParam("userEmail") String userEmail) {
         return ResponseEntity.ok(notificationService.getByUser(userEmail));
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<Notification> markAsRead(@PathVariable String id) {
+    public ResponseEntity<Notification> markAsRead(@PathVariable("id") String id) {
         return ResponseEntity.ok(notificationService.markAsRead(id));
     }
 

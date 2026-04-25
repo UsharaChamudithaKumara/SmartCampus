@@ -33,7 +33,7 @@ public class TechnicianSelectionController {
      * GET /api/technicians/available?type=HARDWARE
      */
     @GetMapping("/available-by-type")
-    public List<TechnicianResponse> getAvailableTechniciansByType(@RequestParam String type) {
+    public List<TechnicianResponse> getAvailableTechniciansByType(@RequestParam("type") String type) {
         return technicianRepository.findByTechnicianType(type).stream()
                 .filter(Technician::isAvailable)
                 .map(t -> new TechnicianResponse(t))
@@ -58,7 +58,7 @@ public class TechnicianSelectionController {
      * GET /api/technicians/{email}
      */
     @GetMapping("/{email}")
-    public Object getTechnicianByEmail(@PathVariable String email) {
+    public Object getTechnicianByEmail(@PathVariable("email") String email) {
         try {
             var tech = technicianRepository.findByEmail(email);
             if (tech.isPresent()) {

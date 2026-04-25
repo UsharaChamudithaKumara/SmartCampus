@@ -18,15 +18,16 @@ async function parseResponseOrThrow(res, fallbackMessage) {
   const text = await res.text();
   const parsed = tryParseJson(text);
 
-  if (parsed?.error) {
-    throw new Error(parsed.error);
-  }
-
   if (!res.ok) {
-    throw new Error(parsed?.error || text || fallbackMessage);
+    const errorMsg = parsed?.message || parsed?.error || text || fallbackMessage;
+    throw new Error(errorMsg);
   }
 
-  return parsed ?? text;
+  if (text && parsed === null) {
+    throw new Error(`Invalid JSON response from server: ${text.substring(0, 100)}`);
+  }
+
+  return parsed;
 }
 
 // Tickets API
@@ -50,7 +51,7 @@ export async function fetchVisibleTickets() {
   }
 
   if (!userEmail) {
-    return [];
+    throw new Error('User email not found in session. Please log in again.');
   }
 
   return fetchTicketsByUser(userEmail);

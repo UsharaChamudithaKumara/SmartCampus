@@ -12,6 +12,7 @@ import {
   Bell,
   Wrench,
   ShieldCheck,
+  AlertCircle,
 } from "lucide-react";
 import { fetchResources, fetchVisibleTickets } from "../api";
 
@@ -83,17 +84,23 @@ export default function DashboardPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError(null);
       try {
         const [ticketData, resourceData] = await Promise.all([
-          fetchVisibleTickets().catch(() => []),
-          fetchResources().catch(() => []),
+          fetchVisibleTickets(),
+          fetchResources(),
         ]);
 
         setTickets(Array.isArray(ticketData) ? ticketData : []);
         setResources(Array.isArray(resourceData) ? resourceData : []);
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -184,6 +191,26 @@ export default function DashboardPage() {
           </div>
         </div>
       </motion.section>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-700 shadow-sm"
+        >
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="font-bold text-sm">Failed to load dashboard data</p>
+            <p className="text-xs opacity-80 mt-0.5">{error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded-lg text-xs font-bold transition-colors"
+          >
+            Retry
+          </button>
+        </motion.div>
+      )}
 
       <section className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${userRole !== "TECHNICIAN" ? 'xl:grid-cols-4' : ''}`}>
         <MetricCard

@@ -38,37 +38,37 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String resourceId,
-            @RequestParam(required = false) String userEmail) {
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "resourceId", required = false) String resourceId,
+            @RequestParam(value = "userEmail", required = false) String userEmail) {
         return ResponseEntity.ok(bookingService.getAllBookings(status, resourceId, userEmail));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable String id) {
+    public ResponseEntity<Booking> getBookingById(@PathVariable("id") String id) {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
     @PutMapping("/{id}/approve")
-    public ResponseEntity<Booking> approveBooking(@PathVariable String id) {
+    public ResponseEntity<Booking> approveBooking(@PathVariable("id") String id) {
         return ResponseEntity.ok(bookingService.approveBooking(id));
     }
 
     @PutMapping("/{id}/reject")
-    public ResponseEntity<Booking> rejectBooking(@PathVariable String id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<Booking> rejectBooking(@PathVariable("id") String id, @RequestBody Map<String, String> body) {
         return ResponseEntity.ok(bookingService.rejectBooking(id, body.get("reason")));
     }
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Booking> cancelBooking(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             @RequestHeader(value = "X-User-Id", required = false) String userId) {
         String resolvedUserId = (userId == null || userId.isBlank()) ? "temp-user-id" : userId;
         return ResponseEntity.ok(bookingService.cancelBooking(id, resolvedUserId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable String id) {
+    public ResponseEntity<Void> deleteBooking(@PathVariable("id") String id) {
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
