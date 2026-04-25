@@ -76,10 +76,7 @@ export default function AdminConsolePage() {
           description="Review and maintain campus resources, availability, and catalogue entries."
           icon={<Building2 className="w-5 h-5" />}
 
-          onClick={() => navigate('/manage-resources')}
-
           onClick={() => navigate('/admin/facilities')}
-
           delay={0.1}
         />
         <AdminActionCard
