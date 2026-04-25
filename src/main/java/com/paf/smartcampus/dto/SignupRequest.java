@@ -10,12 +10,14 @@ public class SignupRequest {
     private String password;
     private String confirmPassword;
     private String profilePhoto;   // Base64 encoded
+    private String role;
+    private String technicianType;
 
     public SignupRequest() {}
 
     public SignupRequest(String firstName, String lastName, String username, String itNumber,
-                        String studentEmail, String nicNumber, String password, 
-                        String confirmPassword, String profilePhoto) {
+                        String studentEmail, String nicNumber, String password,
+                        String confirmPassword, String profilePhoto, String role, String technicianType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -25,6 +27,8 @@ public class SignupRequest {
         this.password = password;
         this.confirmPassword = confirmPassword;
         this.profilePhoto = profilePhoto;
+        this.role = role;
+        this.technicianType = technicianType;
     }
 
     public String getFirstName() { return firstName; }
@@ -53,4 +57,10 @@ public class SignupRequest {
 
     public String getProfilePhoto() { return profilePhoto; }
     public void setProfilePhoto(String profilePhoto) { this.profilePhoto = profilePhoto; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public String getTechnicianType() { return technicianType; }
+    public void setTechnicianType(String technicianType) { this.technicianType = technicianType; }
 }

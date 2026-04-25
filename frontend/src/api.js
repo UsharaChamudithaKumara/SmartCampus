@@ -16,6 +16,10 @@ async function parseResponseOrThrow(res, fallbackMessage) {
   const text = await res.text();
   const parsed = tryParseJson(text);
 
+  if (parsed?.error) {
+    throw new Error(parsed.error);
+  }
+
   if (!res.ok) {
     throw new Error(parsed?.error || text || fallbackMessage);
   }
@@ -161,7 +165,7 @@ export async function uploadImages(ticketId, files) {
 }
 
 // Auth API
-export async function signup(firstName, lastName, username, itNumber, studentEmail, nicNumber, password, confirmPassword, profilePhoto) {
+export async function signup(firstName, lastName, username, itNumber, studentEmail, nicNumber, password, confirmPassword, profilePhoto, role, technicianType) {
   const res = await fetch(`${AUTH_BASE}/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -175,6 +179,8 @@ export async function signup(firstName, lastName, username, itNumber, studentEma
       password,
       confirmPassword,
       profilePhoto,
+      role,
+      technicianType,
     }),
   });
 
