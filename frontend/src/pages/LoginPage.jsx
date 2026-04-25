@@ -8,11 +8,9 @@ import TechnicianLoginStatus from "../components/TechnicianLoginStatus";
 import { googleLogin, login } from "../api";
 
 const TECHNICIAN_TYPES = [
-  { value: "PLUMBER", label: "Plumber" },
-  { value: "ELECTRICIAN", label: "Electrician" },
-  { value: "CARPENTER", label: "Carpenter" },
-  { value: "PAINTER", label: "Painter" },
-  { value: "HVAC", label: "HVAC Technician" },
+  { value: "HARDWARE", label: "Hardware" },
+  { value: "SOFTWARE", label: "Software" },
+  { value: "NETWORK", label: "Network" },
   { value: "GENERAL", label: "General Maintenance" },
 ];
 

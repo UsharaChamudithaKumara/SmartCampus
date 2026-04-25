@@ -18,6 +18,9 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public Booking createBooking(BookingRequestDTO dto, String userId, String userEmail) {
         if (!dto.getEndTime().isAfter(dto.getStartTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End time must be after start time");
@@ -41,7 +44,15 @@ public class BookingService {
         booking.setExpectedAttendees(dto.getExpectedAttendees());
         booking.setStatus(BookingStatus.PENDING);
 
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.create(
+            saved.getUserEmail(),
+            "BOOKING_CREATED",
+            "Booking request submitted",
+            "Your booking request for resource " + saved.getResourceId() + " is now pending approval.",
+            saved.getId(),
+            "BOOKING");
+        return saved;
     }
 
     public List<Booking> getMyBookings(String userId) {
@@ -67,7 +78,15 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.APPROVED);
         booking.setUpdatedAt(LocalDateTime.now());
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.create(
+            saved.getUserEmail(),
+            "BOOKING_APPROVED",
+            "Booking approved",
+            "Your booking for resource " + saved.getResourceId() + " was approved.",
+            saved.getId(),
+            "BOOKING");
+        return saved;
     }
 
     public Booking rejectBooking(String id, String reason) {
@@ -78,7 +97,16 @@ public class BookingService {
         booking.setStatus(BookingStatus.REJECTED);
         booking.setRejectionReason(reason);
         booking.setUpdatedAt(LocalDateTime.now());
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        String safeReason = (reason == null || reason.isBlank()) ? "No reason provided" : reason;
+        notificationService.create(
+            saved.getUserEmail(),
+            "BOOKING_REJECTED",
+            "Booking rejected",
+            "Your booking for resource " + saved.getResourceId() + " was rejected. Reason: " + safeReason,
+            saved.getId(),
+            "BOOKING");
+        return saved;
     }
 
     public Booking cancelBooking(String id, String userId) {
@@ -91,7 +119,15 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setUpdatedAt(LocalDateTime.now());
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.create(
+            saved.getUserEmail(),
+            "BOOKING_CANCELLED",
+            "Booking cancelled",
+            "Your booking for resource " + saved.getResourceId() + " was cancelled.",
+            saved.getId(),
+            "BOOKING");
+        return saved;
     }
 
     public void deleteBooking(String id) {
