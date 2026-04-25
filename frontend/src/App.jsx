@@ -9,7 +9,7 @@ import {
   Outlet,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
+import { Bell, UserCircle, LogOut, Building2, User, Settings } from "lucide-react";
 
 import DashboardPage from "./pages/DashboardPage";
 import AdminConsolePage from "./pages/AdminConsolePage";
@@ -25,6 +25,7 @@ import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import BookingListPage from "./features/bookings/BookingListPage";
 import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
+import Footer from "./components/Footer";
 
 
 function Navigation({ userRole }) {
@@ -33,7 +34,7 @@ function Navigation({ userRole }) {
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: userRole === "ADMIN" ? "/admin/facilities" : "/catalogue", label: "Facilities & Assets" },
-    { path: "/bookings", label: "Booking Management" },
+    { path: "/bookings", label: "My Bookings" },
     {
       path:
         userRole === "ADMIN"
@@ -46,7 +47,7 @@ function Navigation({ userRole }) {
           ? "Admin Tickets"
           : userRole === "TECHNICIAN"
             ? "Staff Tickets"
-            : "Ticket Management",
+            : "My Tickets",
     },
     { path: "/notifications", label: "Notifications" },
   ];
@@ -91,11 +92,16 @@ function AppShell({ userEmail, userRole, onLogout }) {
   const rawEmail = userEmail || storedEmail || "";
   const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
   const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
-  const identityLabel = safeEmail || safeName || "User";
+  const identityLabel = safeName || safeEmail || "User";
+  const initials = safeName 
+    ? safeName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+    : safeEmail 
+      ? safeEmail.substring(0, 2).toUpperCase() 
+      : "U";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-slate-50 to-blue-50/50 flex flex-col">
+      <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
             <Link to="/dashboard" className="flex items-center space-x-2">
@@ -121,21 +127,33 @@ function AppShell({ userEmail, userRole, onLogout }) {
               </button>
 
               <div className="relative group">
-                <button className="p-1 hover:bg-slate-100 rounded-full" title={identityLabel}>
-                  <UserCircle className="w-8 h-8 text-slate-400" />
+                <button className="h-9 w-9 flex items-center justify-center bg-blue-100 text-blue-700 font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all" title={identityLabel}>
+                  {initials}
                 </button>
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-slate-100">
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <p className="text-xs text-slate-500">Signed in as</p>
-                    <p className="text-sm font-semibold text-slate-900 break-all">{identityLabel}</p>
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-slate-100 divide-y divide-slate-100">
+                  <div className="px-4 py-3">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{safeName || "User"}</p>
+                    {safeEmail && <p className="text-xs text-slate-500 truncate mt-0.5">{safeEmail}</p>}
                   </div>
-                  <button
-                    onClick={onLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
+                  <div className="p-1">
+                    <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left">
+                      <User className="w-4 h-4 text-slate-400" />
+                      My Profile
+                    </button>
+                    <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left">
+                      <Settings className="w-4 h-4 text-slate-400" />
+                      Settings
+                    </button>
+                  </div>
+                  <div className="p-1">
+                    <button
+                      onClick={onLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -150,9 +168,7 @@ function AppShell({ userEmail, userRole, onLogout }) {
         <Outlet />
       </main>
 
-      <footer className="bg-white border-t py-4 text-center text-xs text-slate-400">
-        © 2026 Smart Campus Operations Hub
-      </footer>
+      <Footer />
     </div>
   );
 }
