@@ -163,12 +163,16 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [lastRole, setLastRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   function handleLoginSuccess(email) {
+    const role = localStorage.getItem("userRole");
     setIsLoggedIn(true);
     setUserEmail(email || localStorage.getItem("userEmail"));
-    setUserRole(localStorage.getItem("userRole"));
+    setUserRole(role);
+    setLastRole(role);
+    localStorage.setItem("lastRole", role || "");
   }
 
   useEffect(() => {
@@ -178,6 +182,14 @@ export default function App() {
     setIsLoggedIn(loggedIn);
     setUserEmail(email);
     setUserRole(role);
+    
+    if (role) {
+      setLastRole(role);
+      localStorage.setItem("lastRole", role);
+    } else {
+      setLastRole(localStorage.getItem("lastRole"));
+    }
+    
     setLoading(false);
   }, []);
 
@@ -203,7 +215,7 @@ export default function App() {
           <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/admin-login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/signup" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
-          <Route element={isLoggedIn ? <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} /> : <Navigate to="/login" replace />}>
+          <Route element={isLoggedIn ? <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} /> : <Navigate to={lastRole === "ADMIN" ? "/admin-login" : "/login"} replace />}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/admin" element={<AdminConsolePage />} />

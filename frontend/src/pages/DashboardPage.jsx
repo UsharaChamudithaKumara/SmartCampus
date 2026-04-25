@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Ticket,
@@ -48,7 +48,7 @@ function MetricCard({ title, value, subtitle, icon, tone, delay = 0 }) {
   );
 }
 
-function ModuleCard({ title, description, icon, buttonText, onClick, delay = 0 }) {
+function ModuleCard({ title, description, icon, linkText, to, delay = 0 }) {
   return (
     <motion.div
       initial="hidden"
@@ -62,13 +62,13 @@ function ModuleCard({ title, description, icon, buttonText, onClick, delay = 0 }
         <div className="flex-1">
           <h3 className="font-bold text-slate-900">{title}</h3>
           <p className="text-sm text-slate-600 mt-1">{description}</p>
-          <button
-            onClick={onClick}
+          <Link
+            to={to}
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700"
           >
-            {buttonText}
+            {linkText}
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -141,42 +141,42 @@ export default function DashboardPage() {
 
           <div className="flex flex-wrap gap-2">
             {isStaff && (
-              <button
-                onClick={() => navigate("/admin")}
+              <Link
+                to="/admin"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyan-400 text-slate-950 text-sm font-semibold hover:bg-cyan-300 transition-colors"
               >
                 <ShieldCheck className="w-4 h-4" />
                 Admin Console
-              </button>
+              </Link>
             )}
-            <button
-              onClick={() => navigate("/catalogue")}
+            <Link
+              to="/catalogue"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/95 text-slate-900 text-sm font-semibold hover:bg-white transition-colors"
             >
               <Building2 className="w-4 h-4" />
               Facilities
-            </button>
-            <button
-              onClick={() => navigate("/bookings")}
+            </Link>
+            <Link
+              to="/bookings"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               <CalendarClock className="w-4 h-4" />
               Bookings
-            </button>
-            <button
-              onClick={() => navigate("/tickets")}
+            </Link>
+            <Link
+              to="/tickets"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               <Wrench className="w-4 h-4" />
               Tickets
-            </button>
-            <button
-              onClick={() => navigate("/notifications")}
+            </Link>
+            <Link
+              to="/notifications"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               <Bell className="w-4 h-4" />
               Notifications
-            </button>
+            </Link>
           </div>
         </div>
       </motion.section>
@@ -231,32 +231,32 @@ export default function DashboardPage() {
               title="Ticket Management"
               description="Create incidents, assign technicians, update workflow status, and manage comments."
               icon={<Wrench className="w-5 h-5 text-blue-700" />}
-              buttonText="Go to Tickets"
-              onClick={() => navigate("/tickets")}
+              linkText="Go to Tickets"
+              to="/tickets"
               delay={0.22}
             />
             <ModuleCard
               title="Facilities & Assets"
               description="Maintain lecture halls, labs, equipment, and availability status for operations."
               icon={<Building2 className="w-5 h-5 text-cyan-700" />}
-              buttonText="Open Catalogue"
-              onClick={() => navigate("/catalogue")}
+              linkText="Open Catalogue"
+              to="/catalogue"
               delay={0.26}
             />
             <ModuleCard
               title="Booking Management"
               description="Handle booking requests and workflow transitions across campus resources."
               icon={<CalendarClock className="w-5 h-5 text-amber-700" />}
-              buttonText="View Bookings"
-              onClick={() => navigate("/bookings")}
+              linkText="View Bookings"
+              to="/bookings"
               delay={0.3}
             />
             <ModuleCard
               title="Notifications"
               description="Review system alerts for ticket changes, comments, and approvals."
               icon={<Bell className="w-5 h-5 text-indigo-700" />}
-              buttonText="Open Notifications"
-              onClick={() => navigate("/notifications")}
+              linkText="Open Notifications"
+              to="/notifications"
               delay={0.34}
             />
           </div>
@@ -315,13 +315,13 @@ export default function DashboardPage() {
                     ? "Use the admin ticket desk to assign technicians, change statuses, and close incidents."
                     : "Use the staff ticket desk to handle assigned incidents and comment updates."}
                 </p>
-                <button
-                  onClick={() => navigate("/tickets")}
+                <Link
+                  to="/tickets"
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
                 >
                   Open Ticket Desk
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
             )}
           </div>
