@@ -6,96 +6,88 @@ A full-stack web application developed for the **IT3030 – Programming Applicat
 
 ## 📌 Project Overview
 
-The **Smart Campus Operations Hub** is designed to manage:
+The **Smart Campus Operations Hub** is an integrated platform designed to streamline administrative and operational tasks within a university environment. The system focuses on automation, efficiency, and real-time tracking of campus resources.
 
-* 📅 Facility & asset bookings (rooms, labs, equipment)
-* 🛠 Maintenance & incident reporting system
-* 🔔 Notifications and workflow tracking
-* 🔐 Role-based authentication and authorization
+### Key Modules:
+* 📅 **Facility & Asset Bookings**: Efficient management of rooms, labs, and specialized equipment.
+* 🛠 **Maintenance & Incident Reporting**: A centralized system for reporting and tracking infrastructure issues.
+* 🔔 **Notifications & Workflows**: Automated alerts and approval processes for various requests.
+* 🔐 **Role-Based Access Control**: Secure authentication for students, faculty, and administrative staff.
 
 ---
 
 ## 🚀 Tech Stack
 
 ### Backend
-
-* Java 21
-* Spring Boot
-* Spring Data MongoDB
-* Maven
+* **Language**: Java 21
+* **Framework**: Spring Boot 3.x
+* **Data Access**: Spring Data MongoDB
+* **Build Tool**: Maven
 
 ### Database
+* **Type**: NoSQL
+* **Platform**: MongoDB Atlas (Cloud Instance)
 
-* MongoDB Atlas (Cloud)
-
-### Frontend *(Planned)*
-
-* React.js
+### Frontend
+* **Library**: React.js
+* **State Management**: Context API / Redux (Planned)
+* **Styling**: CSS / Bootstrap
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Prerequisites
 
-### 1️⃣ Clone Repository
+Before you begin, ensure you have the following installed:
+* [JDK 21](https://www.oracle.com/java/technologies/downloads/) or higher
+* [Maven 3.9+](https://maven.apache.org/download.cgi)
+* [Node.js](https://nodejs.org/) (for frontend development)
+* A [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account
 
+---
+
+## 🛠️ Setup Instructions
+
+### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/your-username/smartcampus.git
-cd smartcampus
+git clone https://github.com/UsharaChamudithaKumara/SmartCampus.git
+cd SmartCampus
 ```
 
----
-
-### 2️⃣ Configure Environment
-
-Edit the file:
-
-```
-src/main/resources/application.properties
-```
-
-Add your MongoDB connection:
-
+### 2️⃣ Configure Environment Properties
+Navigate to `src/main/resources/application.properties` and configure your MongoDB connection string:
 ```properties
-spring.mongodb.uri=YOUR_MONGODB_ATLAS_URI
+spring.data.mongodb.uri=mongodb+srv://<username>:<password>@cluster.mongodb.net/SmartCampus
+spring.data.mongodb.database=smartcampus_db
 ```
 
----
-
-### 3️⃣ Run Backend
-
+### 3️⃣ Run the Backend Application
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
-
-Server will start at:
-
-```
-http://localhost:8080
-```
+The server will be available at `http://localhost:8080`.
 
 ---
 
 ## 📡 API Endpoints (Current)
 
 ### Resource Management
-
-| Method | Endpoint         | Description       |
-| ------ | ---------------- | ----------------- |
-| GET    | `/api/resources` | Get all resources |
-| POST   | `/api/resources` | Create a resource |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/resources` | Fetch all available resources |
+| `POST` | `/api/resources` | Create a new campus resource |
+| `GET` | `/api/resources/{id}` | Get specific resource details |
 
 ---
 
 ## 🧪 Example Request
 
 ### POST `/api/resources`
-
 ```json
 {
-  "name": "Lab A",
+  "name": "Advanced Computing Lab",
   "type": "Lab",
-  "capacity": 30,
-  "location": "Building 1",
+  "capacity": 50,
+  "location": "Faculty of Computing, Level 3",
   "status": "ACTIVE"
 }
 ```
@@ -104,55 +96,47 @@ http://localhost:8080
 
 ## 📂 Project Structure
 
-```
-src/main/java/com/paf/smartcampus
-│
-├── controller     # REST Controllers
-├── model          # MongoDB Models
-├── repository     # Database Access
-└── SmartcampusApplication.java
+```text
+SmartCampus/
+├── src/main/java/com/paf/smartcampus/
+│   ├── controller/      # REST API Endpoints
+│   ├── model/           # Data Models (POJOs)
+│   ├── repository/      # MongoDB Data Access Objects
+│   ├── service/         # Business Logic Layer
+│   └── SmartcampusApplication.java
+├── src/main/resources/
+│   └── application.properties
+├── frontend/            # React Application
+└── pom.xml              # Maven Dependencies
 ```
 
 ---
 
-## 📌 Features (Planned)
+## 📌 Development Roadmap
 
-* ✅ Resource Management
-* 🔄 Booking System (Pending → Approved → Cancelled)
-* 🛠 Incident Ticketing System
-* 🔔 Notifications
-* 🔐 Authentication & Authorization (OAuth 2.0)
+- [x] Initial Project Setup
+- [x] MongoDB Integration
+- [/] Resource Management Module
+- [ ] Booking System Implementation
+- [ ] Notification Service
+- [ ] User Authentication (JWT)
 
 ---
 
 ## 👥 Team Contribution
 
-| Member   | Module               |
-| -------- | -------------------- |
-| Member 1 | Resource Management  |
-| Member 2 | Booking System       |
-| Member 3 | Ticket System        |
-| Member 4 | Auth & Notifications |
+| Name | Role | Contribution Area |
+| :--- | :--- | :--- |
+| Januda | Developer | Backend Architecture & Notifications |
+| Ushara | Developer | Frontend & Resource Management |
+| Member 3 | Developer | Booking System |
+| Member 4 | Developer | Incident Management |
 
 ---
 
 ## 📜 License
-
-This project is developed for academic purposes only.
-
----
-
-## 💡 Notes
-
-* Ensure MongoDB Atlas network access is enabled (0.0.0.0/0)
-* Do not commit sensitive credentials
+This project is for academic use as part of the PAF module.
 
 ---
 
-## 🔗 GitHub Repository
-
-Add your repository link here.
-
----
-
-🔥 Developed as part of IT3030 PAF Assignment 2026
+🔥 **Developed with ❤️ for IT3030 PAF Assignment 2026**
