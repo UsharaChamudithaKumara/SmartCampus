@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Edit2, Trash2, Power, 
-  MapPin, Users, Tag as TagIcon, Clock 
+  MapPin, Users, Tag as TagIcon, Clock,
+  BarChart2, Activity, ShieldAlert, Layout
 } from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, Tooltip, 
+  ResponsiveContainer, CartesianGrid 
+} from 'recharts';
 import api from '../api'; 
 import ResourceForm from '../components/ResourceForm';
 
@@ -30,11 +35,20 @@ const ManageResourcesPage = () => {
     loadResources();
   }, []);
 
-  // Handle Quick Status Toggle (Active/Out of Service)
+  // --- ANALYTICS LOGIC ---
+  const totalResources = resources.length;
+  const activeResources = resources.filter(r => r.status?.toUpperCase() === 'ACTIVE').length;
+  const oosResources = resources.filter(r => r.status?.toUpperCase() === 'OUT_OF_SERVICE').length;
+  const uniqueTypes = [...new Set(resources.map(r => r.type))].length;
+
+  // Data for the Analytics Chart (Top 6 resources by capacity)
+  const chartData = [...resources]
+    .sort((a, b) => b.capacity - a.capacity)
+    .slice(0, 6)
+    .map(r => ({ name: r.name, capacity: r.capacity }));
+
   const handleToggleStatus = async (resource) => {
-    const newStatus = resource.status === 'Active' || resource.status === 'ACTIVE' 
-      ? 'OUT_OF_SERVICE' 
-      : 'ACTIVE';
+    const newStatus = resource.status?.toUpperCase() === 'ACTIVE' ? 'OUT_OF_SERVICE' : 'ACTIVE';
     try {
       await api.updateResource(resource.id, { ...resource, status: newStatus });
       loadResources(); 
@@ -43,7 +57,6 @@ const ManageResourcesPage = () => {
     }
   };
 
-  // Handle Delete
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this resource?")) {
       try {
@@ -55,7 +68,6 @@ const ManageResourcesPage = () => {
     }
   };
 
-  // Filtering Logic
   const filteredResources = resources.filter(res =>
     res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     res.type.toLowerCase().includes(searchTerm.toLowerCase())
@@ -66,8 +78,8 @@ const ManageResourcesPage = () => {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Manage Resources</h1>
-          <p className="text-slate-500">Create, edit, and manage facilities and assets.</p>
+          <h1 className="text-2xl font-bold text-slate-900 text-left">Manage Resources</h1>
+          <p className="text-slate-500 text-left">Real-time analytics and asset management dashboard.</p>
         </div>
         <button 
           onClick={() => { setSelectedResource(null); setIsModalOpen(true); }}
@@ -77,12 +89,69 @@ const ManageResourcesPage = () => {
         </button>
       </div>
 
+      {/* ADDITIONAL FEATURE: Analytics Overview Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-left">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Layout size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Total Assets</p>
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900">{totalResources}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-50 text-green-600 rounded-lg"><Activity size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Active Resources</p>
+          </div>
+          <h3 className="text-2xl font-bold text-green-600">{activeResources}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-50 text-red-600 rounded-lg"><ShieldAlert size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Out of Service</p>
+          </div>
+          <h3 className="text-2xl font-bold text-red-600">{oosResources}</h3>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-purple-50 text-purple-600 rounded-lg"><TagIcon size={20}/></div>
+            <p className="text-slate-500 text-sm font-medium">Resource Categories</p>
+          </div>
+          <h3 className="text-2xl font-bold text-purple-600">{uniqueTypes}</h3>
+        </div>
+      </div>
+
+      {/* ADDITIONAL FEATURE: Usage Chart Section */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-8 text-left">
+        <div className="flex items-center gap-2 mb-6">
+          <BarChart2 size={20} className="text-slate-400" />
+          <h3 className="text-lg font-semibold text-slate-800">Resource Capacity Analytics</h3>
+        </div>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+              <Tooltip 
+                cursor={{fill: '#f8fafc'}} 
+                contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} 
+              />
+              <Bar dataKey="capacity" fill="#1e293b" radius={[4, 4, 0, 0]} barSize={40} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
       {/* Search Bar */}
       <div className="mb-6 relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
           type="text"
-          placeholder="Search resources..."
+          placeholder="Search resources by name or type..."
           className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -119,11 +188,9 @@ const ManageResourcesPage = () => {
                   </td>
                   <td className="px-6 py-4 text-slate-600">{resource.capacity}</td>
                   <td className="px-6 py-4 text-slate-600">{resource.location}</td>
-                  
-                  {/* Availability Column */}
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1.5">
-                      {resource.availabilityWindows && resource.availabilityWindows.length > 0 ? (
+                      {resource.availabilityWindows?.length > 0 ? (
                         resource.availabilityWindows.map((timeRange, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-[11px] font-medium text-slate-600 bg-slate-50 px-2 py-1 rounded border border-slate-100 w-fit">
                             <Clock size={12} className="text-slate-400" />
@@ -135,17 +202,14 @@ const ManageResourcesPage = () => {
                       )}
                     </div>
                   </td>
-
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                      resource.status === 'Active' || resource.status === 'ACTIVE' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                      resource.status?.toUpperCase() === 'ACTIVE' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
                     }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${resource.status === 'Active' || resource.status === 'ACTIVE' ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${resource.status?.toUpperCase() === 'ACTIVE' ? 'bg-green-500' : 'bg-red-500'}`} />
                       {resource.status}
                     </span>
                   </td>
-
-                  {/* Actions Column */}
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button onClick={() => handleToggleStatus(resource)} className="p-2 text-slate-400 hover:text-blue-600 transition" title="Toggle Status">
@@ -175,18 +239,16 @@ const ManageResourcesPage = () => {
                onSuccess={async (formData) => {
                  try {
                    if (selectedResource) {
-                     // EDIT MODE: Call Update API
                      await api.updateResource(selectedResource.id, formData);
                    } else {
-                     // ADD MODE: Call Create API
                      await api.createResource(formData);
                    }
-                   loadResources(); // Refresh Table
-                   setIsModalOpen(false); // Close Modal
-                   setSelectedResource(null); // Reset Selection
+                   loadResources(); 
+                   setIsModalOpen(false); 
+                   setSelectedResource(null); 
                  } catch (err) {
                    console.error("Form submission failed:", err);
-                   alert("An error occurred while saving. Please check your inputs.");
+                   alert("An error occurred while saving.");
                  }
                }}
                onCancel={() => { 
