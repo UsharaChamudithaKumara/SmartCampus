@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.paf.smartcampus.model.User;
 import com.paf.smartcampus.repository.UserRepository;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 public class SmartcampusApplication {
+	private static final Logger log = LoggerFactory.getLogger(SmartcampusApplication.class);
 
 	@Bean
 	CommandLineRunner seedAdmin(UserRepository userRepository,
@@ -26,23 +29,27 @@ public class SmartcampusApplication {
 			@Value("${app.admin.nic-number:900000000V}") String nicNumber) {
 		return args -> {
 			var passwordEncoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-			User admin = userRepository.findByStudentEmail(adminEmail).orElse(null);
-			if (admin == null) {
-				admin = new User(
-					adminEmail,
-					itNumber,
-					passwordEncoder.encode(adminPassword),
-					firstName,
-					lastName,
-					username,
-					nicNumber,
-					null
-				);
-				admin.setRole("ADMIN");
-				userRepository.save(admin);
-			} else if (!"ADMIN".equals(admin.getRole())) {
-				admin.setRole("ADMIN");
-				userRepository.save(admin);
+			try {
+				User admin = userRepository.findByStudentEmail(adminEmail).orElse(null);
+				if (admin == null) {
+					admin = new User(
+						adminEmail,
+						itNumber,
+						passwordEncoder.encode(adminPassword),
+						firstName,
+						lastName,
+						username,
+						nicNumber,
+						null
+					);
+					admin.setRole("ADMIN");
+					userRepository.save(admin);
+				} else if (!"ADMIN".equals(admin.getRole())) {
+					admin.setRole("ADMIN");
+					userRepository.save(admin);
+				}
+			} catch (Exception ex) {
+				log.warn("Skipping admin seed because database is unavailable at startup: {}", ex.getMessage());
 			}
 		};
 	}
