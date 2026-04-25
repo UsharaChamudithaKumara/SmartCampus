@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "name": "app.admin.email",
+      "type": "java.lang.String",
+      "description": "Admin seed account email."
+    },
+    {
+      "name": "app.admin.password",
+      "type": "java.lang.String",
+      "description": "Admin seed account password."
+    },
+    {
+      "name": "app.admin.username",
+      "type": "java.lang.String",
+      "description": "Admin seed account username."
+    },
+    {
+      "name": "app.admin.first-name",
+      "type": "java.lang.String",
+      "description": "Admin seed first name."
+    },
+    {
+      "name": "app.admin.last-name",
+      "type": "java.lang.String",
+      "description": "Admin seed last name."
+    },
+    {
+      "name": "app.admin.it-number",
+      "type": "java.lang.String",
+      "description": "Admin seed IT number."
+    },
+    {
+      "name": "app.admin.nic-number",
+      "type": "java.lang.String",
+      "description": "Admin seed NIC number."
+    }
+  ]
+}

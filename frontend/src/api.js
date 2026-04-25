@@ -50,6 +50,11 @@ export async function fetchVisibleTickets() {
   return fetchTicketsByUser(userEmail);
 }
 
+export async function fetchTicketsForTechnician(technicianEmail) {
+  const res = await fetch(`${BASE_TICKETS}/technician/${encodeURIComponent(technicianEmail)}`);
+  return parseResponseOrThrow(res, 'Failed to fetch assigned tickets');
+}
+
 export async function createTicket(ticket) {
   const res = await fetch(BASE_TICKETS, {
     method: 'POST',
@@ -89,6 +94,21 @@ export async function addResolutionNotes(ticketId, notes) {
     method: 'PUT',
   });
   return parseResponseOrThrow(res, 'Failed to save resolution notes');
+}
+
+export async function technicianResolveTicket(ticketId, notes) {
+  const params = new URLSearchParams({ notes });
+  const res = await fetch(`${BASE_TICKETS}/${ticketId}/technician/resolve?${params.toString()}`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to resolve ticket');
+}
+
+export async function adminCloseTicket(ticketId) {
+  const res = await fetch(`${BASE_TICKETS}/${ticketId}/admin/close`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to close ticket');
 }
 
 export async function addTicketComment(ticketId, comment) {
@@ -171,6 +191,57 @@ export async function login(studentEmail, password, role, technicianType) {
   return parseResponseOrThrow(res, 'Login failed');
 }
 
+export async function getTechnicianLoginRequestStatus(technicianEmail) {
+  const res = await fetch(`/api/technician-login-requests/status/${encodeURIComponent(technicianEmail)}`);
+  return parseResponseOrThrow(res, 'Failed to fetch request status');
+}
+
+export async function getPendingTechnicianRequests() {
+  const res = await fetch(`/api/technician-login-requests/pending`);
+  return parseResponseOrThrow(res, 'Failed to fetch pending requests');
+}
+
+export async function approveTechnicianRequest(requestId, adminEmail) {
+  const res = await fetch(`/api/technician-login-requests/${requestId}/approve?adminEmail=${encodeURIComponent(adminEmail)}`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to approve request');
+}
+
+export async function rejectTechnicianRequest(requestId, reason) {
+  const res = await fetch(`/api/technician-login-requests/${requestId}/reject?reason=${encodeURIComponent(reason)}`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to reject request');
+}
+
+// Admin Login API
+export async function adminLogin(username, password) {
+  const res = await fetch('/api/admin-auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+
+  return parseResponseOrThrow(res, 'Admin login failed');
+}
+
+// Technician Selection API
+export async function getAvailableTechnicians() {
+  const res = await fetch('/api/technicians/available');
+  return parseResponseOrThrow(res, 'Failed to fetch available technicians');
+}
+
+export async function getTechniciansByType(techType) {
+  const res = await fetch(`/api/technicians/available-by-type?type=${encodeURIComponent(techType)}`);
+  return parseResponseOrThrow(res, 'Failed to fetch technicians by type');
+}
+
+export async function getAllTechnicians() {
+  const res = await fetch('/api/technicians/all');
+  return parseResponseOrThrow(res, 'Failed to fetch technicians');
+}
+
 export async function googleLogin(credential, expectedRole) {
   const res = await fetch(`${AUTH_BASE}/google-login`, {
     method: 'POST',
@@ -243,6 +314,7 @@ const api = {
   fetchTickets,
   fetchTicketsByUser,
   fetchVisibleTickets,
+  fetchTicketsForTechnician,
   createTicket,
   fetchTicketById,
   uploadImage,
@@ -250,6 +322,8 @@ const api = {
   assignTechnician,
   updateTicketStatus,
   addResolutionNotes,
+  technicianResolveTicket,
+  adminCloseTicket,
   addTicketComment,
   editTicketComment,
   deleteTicketComment,

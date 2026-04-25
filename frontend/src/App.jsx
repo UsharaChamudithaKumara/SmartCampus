@@ -6,6 +6,7 @@ import {
   Link,
   useLocation,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
@@ -15,12 +16,6 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
-import CataloguePage from "./pages/CataloguePage";
-import ViewCataloguePage from "./pages/ViewCataloguePage";
-
-import ResourceForm from "./components/ResourceForm";
-
-import AdminResourceList from "./components/ManageResourcesPage";
 import ManageResourcesPage from "./components/ManageResourcesPage";
 
 import BookingListPage from "./features/bookings/BookingListPage";
@@ -28,7 +23,12 @@ import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import AdminTicketsPage from "./pages/AdminTicketsPage";
+import CataloguePage from "./pages/CataloguePage";
+import ViewCataloguePage from "./pages/ViewCataloguePage";
+import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
+import BookingListPage from "./features/bookings/BookingListPage";
+import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 
 
 function Navigation({ userRole }) {
@@ -36,7 +36,7 @@ function Navigation({ userRole }) {
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
-    { path: "/catalogue", label: "Facilities & Assets" },
+    { path: userRole === "ADMIN" ? "/admin/facilities" : "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "Booking Management" },
     {
   path:
@@ -152,26 +152,7 @@ function AppShell({ userEmail, userRole, onLogout }) {
 
 
       <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/admin" element={<AdminConsolePage />} />
-          <Route path="/tickets" element={<TicketsPage />} />
-          <Route path="/admin/tickets" element={<AdminTicketsPage />} />
-          <Route path="/staff/tickets" element={<TicketsPage />} />
-          <Route path="/create" element={<CreateTicketPage />} />
-          <Route path="/catalogue" element={<CataloguePage />} />
-          <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
-          <Route
-            path="/bookings"
-            element={userRole === "ADMIN" || userRole === "TECHNICIAN" ? <AdminBookingsPage /> : <BookingListPage />}
-          />
-          <Route
-            path="/notifications"
-            element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
-          />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+        <Outlet />
       </main>
 
       <footer className="bg-white border-t py-4 text-center text-xs text-slate-400">
@@ -214,33 +195,39 @@ export default function App() {
     setUserRole(null);
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <BrowserRouter>
-      {!isLoggedIn ? (
-        <Routes>
-          <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/admin-login" element={<AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+      {loading ? (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
       ) : (
-        <>
-          <Routes>
-            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin-login" element={<Navigate to="/admin" replace />} />
-            <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={null} />
-          </Routes>
-          <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} />
-        </>
+        <Routes>
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/admin-login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/signup" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
+          <Route element={isLoggedIn ? <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} /> : <Navigate to="/login" replace />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/admin" element={<AdminConsolePage />} />
+            <Route path="/tickets" element={<TicketsPage />} />
+            <Route path="/admin/tickets" element={<AdminTicketsPageNew />} />
+            <Route path="/staff/tickets" element={<TechnicianDashboard />} />
+            <Route path="/create" element={<CreateTicketPage />} />
+            <Route path="/admin/facilities" element={<ManageResourcesPage />} />
+            <Route path="/catalogue" element={<CataloguePage />} />
+            <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
+            <Route
+              path="/bookings"
+              element={userRole === "ADMIN" || userRole === "TECHNICIAN" ? <AdminBookingsPage /> : <BookingListPage />}
+            />
+            <Route
+              path="/notifications"
+              element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
+            />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        </Routes>
       )}
     </BrowserRouter>
   );
