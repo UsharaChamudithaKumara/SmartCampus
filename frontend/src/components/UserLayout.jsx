@@ -90,10 +90,10 @@ export default function UserLayout({ userEmail, userRole, onLogout }) {
                     {safeEmail && <p className="text-xs text-slate-500 truncate mt-0.5">{safeEmail}</p>}
                   </div>
                   <div className="p-1">
-                    <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left">
+                    <Link to="/profile" className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left">
                       <User className="w-4 h-4 text-slate-400" />
                       My Profile
-                    </button>
+                    </Link>
                     <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left">
                       <Settings className="w-4 h-4 text-slate-400" />
                       Settings

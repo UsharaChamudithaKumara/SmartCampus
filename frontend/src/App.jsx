@@ -23,9 +23,8 @@ import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
-import ManageResourcesPage from "./components/ManageResourcesPage";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import ProfilePage from "./pages/ProfilePage";
+
 import BookingListPage from "./features/bookings/BookingListPage";
 import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 import UserLayout from "./components/UserLayout";
@@ -171,6 +170,7 @@ export default function App() {
             <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
             <Route path="/bookings" element={<BookingListPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route
               path="/notifications"
               element={<NotificationsPage />}

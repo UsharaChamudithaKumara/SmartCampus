@@ -5,6 +5,7 @@ const BASE_RESOURCES = '/api/resources';
 const AUTH_BASE = '/api/auth';
 const BASE_BOOKINGS = '/api/bookings';
 const BASE_NOTIFICATIONS = '/api/notifications';
+const BASE_USERS = '/api/users';
 
 function tryParseJson(text) {
   try {
@@ -372,6 +373,12 @@ export async function markAllNotificationsRead(userEmail) {
   return parseResponseOrThrow(res, 'Failed to mark all notifications as read');
 }
 
+// Users API
+export async function fetchUserProfile(email) {
+  const res = await fetch(`${BASE_USERS}/profile?email=${encodeURIComponent(email)}`);
+  return parseResponseOrThrow(res, 'Failed to fetch user profile');
+}
+
 const api = {
   fetchTickets,
   fetchTicketsByUser,
@@ -403,6 +410,7 @@ const api = {
   fetchNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  fetchUserProfile,
 };
 
 export default api;
