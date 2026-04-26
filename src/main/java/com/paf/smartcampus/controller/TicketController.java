@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import com.paf.smartcampus.model.Ticket;
 import com.paf.smartcampus.model.Comment;
 import com.paf.smartcampus.repository.TicketRepository;
+import com.paf.smartcampus.service.EmailService;
 import com.paf.smartcampus.service.NotificationService;
 
 import jakarta.validation.Valid;
@@ -32,6 +34,9 @@ public class TicketController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private EmailService emailService;
+
     // CREATE ticket (with validation)
     @PostMapping
     public Ticket create(@Valid @RequestBody Ticket ticket) {
@@ -44,6 +49,9 @@ public class TicketController {
         if (ticket.getPreferredContactName() == null || ticket.getPreferredContactName().isBlank()) {
             ticket.setPreferredContactName(ticket.getUserId());
         }
+        LocalDateTime now = LocalDateTime.now();
+        ticket.setCreatedAt(now);
+        ticket.setUpdatedAt(now);
         Ticket saved = repo.save(ticket);
 
         if (saved.getUserId() != null && !saved.getUserId().isBlank()) {
@@ -116,6 +124,7 @@ public class TicketController {
             Ticket t = repo.findById(id).orElseThrow();
             if (t.getImageUrls() == null) t.setImageUrls(new ArrayList<>());
             t.getImageUrls().add("/uploads/" + filename);
+            t.setUpdatedAt(LocalDateTime.now());
             repo.save(t);
 
             return "✅ Image uploaded successfully";
@@ -142,6 +151,7 @@ public class TicketController {
                 file.transferTo(new File(filePath));
                 t.getImageUrls().add("/uploads/" + filename);
             }
+            t.setUpdatedAt(LocalDateTime.now());
             repo.save(t);
             return "✅ Images uploaded successfully";
         } catch (IOException e) {
@@ -167,9 +177,37 @@ public class TicketController {
             t.setRejectedReason(null);
         }
         t.setStatus(status);
+        t.setUpdatedAt(LocalDateTime.now());
         repo.save(t);
 
+        if ("REJECTED".equals(status)) {
+            notifyTicketRejected(t, reason);
+        } else {
+            String recipient = t.getPreferredContactEmail();
+            if (recipient == null || recipient.isBlank()) recipient = t.getUserId();
+            emailService.sendTicketStatusUpdateEmail(recipient, t.getTitle(), status);
+        }
+
         return "✅ Status updated successfully";
+    }
+
+    private void notifyTicketRejected(Ticket ticket, String reason) {
+        String recipient = ticket.getPreferredContactEmail();
+        if (recipient == null || recipient.isBlank()) {
+            recipient = ticket.getUserId();
+        }
+
+        String safeReason = (reason == null || reason.isBlank()) ? "Ticket was rejected." : reason;
+        String message = "Your ticket \"" + ticket.getTitle() + "\" was rejected. Please resubmit a ticket.";
+
+        emailService.sendTicketRejectedEmail(recipient, ticket.getTitle(), safeReason);
+        notificationService.create(
+                recipient,
+                "TICKET_REJECTED",
+                "Ticket rejected",
+                message,
+                ticket.getId(),
+                "TICKET");
     }
 
     // ASSIGN technician (admin-only: status becomes IN_PROGRESS)
@@ -178,12 +216,11 @@ public class TicketController {
         Ticket t = repo.findById(id).orElseThrow();
         t.setAssignedTo(technician);
         t.setStatus("IN_PROGRESS");
+        t.setUpdatedAt(LocalDateTime.now());
         Ticket saved = repo.save(t);
 
-        // Mock sending email
-        System.out.println("📧 EMAIL SENT TO TECHNICIAN: " + technician);
-        System.out.println("Subject: New Ticket Assigned");
-        System.out.println("Body: You have been assigned to ticket '" + t.getTitle() + "'. Please check your Staff Tickets.");
+        // Send real email
+        emailService.sendTicketAssignedEmail(technician, t.getTitle());
 
         if (technician != null && !technician.isBlank()) {
             notificationService.create(
@@ -213,6 +250,7 @@ public class TicketController {
         }
         t.setResolutionNotes(notes);
         t.setStatus("RESOLVED");
+        t.setUpdatedAt(LocalDateTime.now());
         return repo.save(t);
     }
 
@@ -224,6 +262,7 @@ public class TicketController {
             return "❌ Only RESOLVED tickets can be closed. Current status: " + t.getStatus();
         }
         t.setStatus("CLOSED");
+        t.setUpdatedAt(LocalDateTime.now());
         return repo.save(t);
     }
 
@@ -236,6 +275,7 @@ public class TicketController {
         comment.setCreatedAt(new Date());
         comment.setUpdatedAt(null);
         t.getComments().add(comment);
+        t.setUpdatedAt(LocalDateTime.now());
         Ticket saved = repo.save(t);
 
         String authorId = comment.getAuthorId();
@@ -280,6 +320,7 @@ public class TicketController {
                 }
                 c.setText(payload.get("text"));
                 c.setUpdatedAt(new Date());
+                t.setUpdatedAt(LocalDateTime.now());
                 return repo.save(t);
             }
         }
@@ -299,6 +340,7 @@ public class TicketController {
                     return "❌ Not authorized to delete this comment";
                 }
                 it.remove();
+                t.setUpdatedAt(LocalDateTime.now());
                 return repo.save(t);
             }
         }
@@ -313,6 +355,8 @@ public class TicketController {
         if (notes != null && !notes.isBlank()) {
             t.setStatus("RESOLVED");
         }
+        t.setUpdatedAt(LocalDateTime.now());
         return repo.save(t);
     }
 }
+

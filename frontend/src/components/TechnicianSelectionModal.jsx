@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAvailableTechnicians } from "../api";
 
-export default function TechnicianSelectionModal({ isOpen, onClose, onSelect, ticketType }) {
+export default function TechnicianSelectionModal({ isOpen, onClose, onSelect, ticket }) {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,8 +16,41 @@ export default function TechnicianSelectionModal({ isOpen, onClose, onSelect, ti
     try {
       setLoading(true);
       setError(null);
-      const data = await getAvailableTechnicians();
-      setTechnicians(Array.isArray(data) ? data : []);
+      let data = await getAvailableTechnicians();
+      if (!Array.isArray(data)) data = [];
+
+      // Relevance Scoring Logic
+      const combinedText = ticket ? `${ticket.title} ${ticket.description} ${ticket.category}`.toLowerCase() : "";
+      const typeMap = {
+        'PAINTER': ['paint', 'color', 'wall', 'graffiti', 'repaint'],
+        'PLUMBER': ['leak', 'water', 'pipe', 'sink', 'toilet', 'drain', 'plumb', 'plumber'],
+        'ELECTRICIAN': ['light', 'power', 'electric', 'wire', 'socket', 'plug', 'switch', 'bulb', 'flicker', 'short circuit'],
+        'CARPENTER': ['wood', 'door', 'desk', 'chair', 'furniture', 'hinge', 'cabinet', 'table', 'carpenter'],
+        'HVAC': ['ac ', 'air condition', 'hvac', 'cool', 'heat', 'warm air', 'cold air', 'temperature', 'fan'],
+        'GENERAL': ['blind', 'window', 'glass', 'clean', 'general']
+      };
+
+      const scoredData = data.map(tech => {
+        let score = (tech.completedTickets * 0.6) + ((tech.rating || 0) * 0.4);
+        let isRecommended = false;
+
+        if (tech.technicianType) {
+          const keywords = typeMap[tech.technicianType.toUpperCase()] || [];
+          for (const kw of keywords) {
+            if (combinedText.includes(kw)) {
+              score += 100; // Massive boost for matching role
+              isRecommended = true;
+              break;
+            }
+          }
+        }
+        return { ...tech, score, isRecommended };
+      });
+
+      // Sort by score descending
+      scoredData.sort((a, b) => b.score - a.score);
+
+      setTechnicians(scoredData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,7 +84,10 @@ export default function TechnicianSelectionModal({ isOpen, onClose, onSelect, ti
                 <div style={styles.techInfo}>
                   <div style={styles.rank}>#{idx + 1}</div>
                   <div>
-                    <p style={styles.techName}>{tech.name}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <p style={{ ...styles.techName, margin: 0 }}>{tech.name}</p>
+                      {tech.isRecommended && <span style={styles.recommendedBadge}>★ Recommended</span>}
+                    </div>
                     <p style={styles.techEmail}>{tech.email}</p>
                     <div style={styles.stats}>
                       <span style={styles.stat}>
@@ -258,5 +294,14 @@ const styles = {
     textAlign: "center",
     color: "#94a3b8",
     padding: "24px 20px",
+  },
+  recommendedBadge: {
+    fontSize: "10px",
+    fontWeight: "700",
+    background: "#dcfce7",
+    color: "#166534",
+    padding: "2px 6px",
+    borderRadius: "12px",
+    border: "1px solid #bbf7d0"
   },
 };

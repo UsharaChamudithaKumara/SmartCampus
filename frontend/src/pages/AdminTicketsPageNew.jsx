@@ -208,7 +208,7 @@ export default function AdminTicketsPageNew() {
           setSelectedTicket(null);
         }}
         onSelect={handleSelectTechnician}
-        ticketType={selectedTicket ? tickets.find(t => t.id === selectedTicket)?.category : null}
+        ticket={selectedTicket ? tickets.find(t => t.id === selectedTicket) : null}
       />
 
       <TicketCommentsModal

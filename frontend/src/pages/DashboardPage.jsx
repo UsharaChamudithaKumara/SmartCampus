@@ -79,6 +79,7 @@ function ModuleCard({ title, description, icon, linkText, to, delay = 0 }) {
 export default function DashboardPage() {
   const navigate = useNavigate();
   const userRole = sessionStorage.getItem("userRole");
+  const userEmail = sessionStorage.getItem("userEmail");
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
   const [tickets, setTickets] = useState([]);
   const [resources, setResources] = useState([]);
@@ -117,8 +118,10 @@ export default function DashboardPage() {
     const totalResources = resources.length;
     const activeResources = resources.filter((r) => r.status === "ACTIVE").length;
 
-    return { totalTickets, openTickets, resolvedTickets, totalResources, activeResources };
-  }, [tickets, resources]);
+    const myCompletedTickets = tickets.filter((t) => t.assignedTo === userEmail && (t.status === "RESOLVED" || t.status === "CLOSED")).length;
+
+    return { totalTickets, openTickets, resolvedTickets, totalResources, activeResources, myCompletedTickets };
+  }, [tickets, resources, userEmail]);
 
   const ticketResolution = stats.totalTickets === 0 ? 0 : Math.round((stats.resolvedTickets / stats.totalTickets) * 100);
   const resourceAvailability = stats.totalResources === 0 ? 0 : Math.round((stats.activeResources / stats.totalResources) * 100);
@@ -212,7 +215,7 @@ export default function DashboardPage() {
         </motion.div>
       )}
 
-      <section className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${userRole !== "TECHNICIAN" ? 'xl:grid-cols-4' : ''}`}>
+      <section className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${userRole === "TECHNICIAN" ? 'lg:grid-cols-3' : 'xl:grid-cols-4'}`}>
         <MetricCard
           title="Total Tickets"
           value={loading ? "..." : stats.totalTickets}
@@ -229,6 +232,16 @@ export default function DashboardPage() {
           tone="blue"
           delay={0.1}
         />
+        {userRole === "TECHNICIAN" && (
+          <MetricCard
+            title="My Completed Work"
+            value={loading ? "..." : stats.myCompletedTickets}
+            subtitle="RESOLVED + CLOSED"
+            icon={<CheckCircle2 className="w-5 h-5" />}
+            tone="green"
+            delay={0.15}
+          />
+        )}
         {userRole !== "TECHNICIAN" && (
           <>
             <MetricCard
@@ -348,13 +361,11 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            {isStaff && (
+            {userRole === "ADMIN" && (
               <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Staff Console</p>
                 <p className="text-sm text-blue-900 mt-1">
-                  {userRole === "ADMIN"
-                    ? "Use the admin ticket desk to assign technicians, change statuses, and close incidents."
-                    : "Use the staff ticket desk to handle assigned incidents and comment updates."}
+                  Use the admin ticket desk to assign technicians, change statuses, and close incidents.
                 </p>
                 <Link
                   to="/tickets"

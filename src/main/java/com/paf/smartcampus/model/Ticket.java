@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "tickets")
@@ -48,6 +49,10 @@ public class Ticket {
     private String rejectedReason;
 
     private String resolutionNotes;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     private List<Comment> comments;
 
@@ -187,5 +192,21 @@ public class Ticket {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
