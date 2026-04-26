@@ -1,14 +1,16 @@
 const BASE_URL = "/api/bookings";
 
 async function request(path, options = {}) {
-	const userEmail = sessionStorage.getItem("userEmail") || "";
+	const userEmail = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail") || "";
+	const userId = sessionStorage.getItem("userId") || localStorage.getItem("userId") || userEmail;
+	
 	const res = await fetch(`${BASE_URL}${path}`, {
 		...options,
-		headers: {
-			"Content-Type": "application/json",
-			"X-User-Id": userEmail,
+		headers: { 
+			"Content-Type": "application/json", 
+			"X-User-Id": userId,
 			"X-User-Email": userEmail,
-			...(options.headers || {}),
+			...(options.headers || {}) 
 		},
 	});
 
