@@ -10,7 +10,7 @@ function AdminSidebar() {
     { path: "/admin/facilities", label: "Facilities & Asset Management", icon: FolderKanban },
     { path: "/admin/bookings", label: "Booking Management", icon: CalendarRange },
     { path: "/admin/tickets", label: "Ticket Management", icon: Ticket },
-    { path: "/notifications", label: "Notification Management", icon: BellRing },
+   // { path: "/notifications", label: "Notification Management", icon: BellRing },
   ];
 
   return (
@@ -48,18 +48,7 @@ function AdminSidebar() {
         </nav>
       </div>
 
-      <div className="mt-auto p-6">
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700/50">
-          <p className="text-xs text-slate-400 mb-2">System Status</p>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span className="text-sm text-emerald-400 font-medium">All systems operational</span>
-          </div>
-        </div>
-      </div>
+
     </aside>
   );
 }
