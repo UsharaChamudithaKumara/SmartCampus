@@ -23,7 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/admin-auth/**").permitAll()
                 .requestMatchers("/api/tickets", "/api/tickets/**", "/api/resources", "/api/resources/**", "/api/bookings", "/api/bookings/**", "/api/notifications", "/api/notifications/**", "/uploads/**").permitAll()
-                .requestMatchers("/api/technician-login-requests/**", "/api/technicians/**").permitAll()
+                .requestMatchers("/api/technician-login-requests/**", "/api/technicians/**", "/api/users", "/api/users/**").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(httpBasic -> httpBasic.disable())

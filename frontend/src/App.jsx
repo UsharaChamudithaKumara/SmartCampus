@@ -16,13 +16,15 @@ import AdminConsolePage from "./pages/AdminConsolePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
+import ManageResourcesPage from "./components/ManageResourcesPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import CataloguePage from "./pages/CataloguePage";
 import ViewCataloguePage from "./pages/ViewCataloguePage";
 import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
-import ManageResourcesPage from "./components/ManageResourcesPage";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import ProfilePage from "./pages/ProfilePage";
+
 import BookingListPage from "./features/bookings/BookingListPage";
 import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
 import UserLayout from "./components/UserLayout";
@@ -40,8 +42,6 @@ function PlaceholderPage({ title, description }) {
     </div>
   );
 }
-
-
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -170,6 +170,7 @@ export default function App() {
             <Route path="/catalogue/:id" element={<ViewCataloguePage />} />
             <Route path="/bookings" element={<BookingListPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route
               path="/notifications"
               element={<NotificationsPage />}
@@ -186,6 +187,6 @@ export default function App() {
           </Route>
         </Routes>
       )}
-    </BrowserRouter>
+        </BrowserRouter>
   );
 }

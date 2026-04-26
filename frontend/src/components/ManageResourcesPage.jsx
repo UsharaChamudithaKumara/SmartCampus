@@ -327,6 +327,13 @@ const ManageResourcesPage = () => {
       )}
     </div>
   );
+
+
+
+
+
 };
+
+
 
 export default ManageResourcesPage;
