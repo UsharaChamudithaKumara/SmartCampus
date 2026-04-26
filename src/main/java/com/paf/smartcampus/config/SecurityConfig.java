@@ -22,7 +22,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/admin-auth/**").permitAll()
-                .requestMatchers("/api/tickets/**", "/api/resources/**", "/api/bookings/**", "/api/notifications/**", "/uploads/**").permitAll()
+                .requestMatchers("/api/tickets", "/api/tickets/**", "/api/resources", "/api/resources/**", "/api/bookings", "/api/bookings/**", "/api/notifications", "/api/notifications/**", "/uploads/**").permitAll()
                 .requestMatchers("/api/technician-login-requests/**", "/api/technicians/**").permitAll()
                 .anyRequest().authenticated()
             )

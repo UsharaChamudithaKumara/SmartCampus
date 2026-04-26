@@ -5,13 +5,13 @@ async function request(path, options = {}) {
 	const userId = sessionStorage.getItem("userId") || localStorage.getItem("userId") || userEmail;
 	
 	const res = await fetch(`${BASE_URL}${path}`, {
+		...options,
 		headers: { 
 			"Content-Type": "application/json", 
 			"X-User-Id": userId,
 			"X-User-Email": userEmail,
 			...(options.headers || {}) 
 		},
-		...options,
 	});
 
 	const text = await res.text();

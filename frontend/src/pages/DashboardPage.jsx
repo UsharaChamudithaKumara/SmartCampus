@@ -12,6 +12,7 @@ import {
   Bell,
   Wrench,
   ShieldCheck,
+  AlertCircle,
 } from "lucide-react";
 import { fetchResources, fetchVisibleTickets } from "../api";
 
@@ -83,17 +84,23 @@ export default function DashboardPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError(null);
       try {
         const [ticketData, resourceData] = await Promise.all([
-          fetchVisibleTickets().catch(() => []),
-          fetchResources().catch(() => []),
+          fetchVisibleTickets(),
+          fetchResources(),
         ]);
 
         setTickets(Array.isArray(ticketData) ? ticketData : []);
         setResources(Array.isArray(resourceData) ? resourceData : []);
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -140,7 +147,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {isStaff && (
+            {isStaff && userRole === "ADMIN" && (
               <Link
                 to="/admin"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyan-400 text-slate-950 text-sm font-semibold hover:bg-cyan-300 transition-colors"
@@ -149,26 +156,30 @@ export default function DashboardPage() {
                 Admin Console
               </Link>
             )}
+            {userRole !== "TECHNICIAN" && (
+              <>
+                <Link
+                  to="/catalogue"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/95 text-slate-900 text-sm font-semibold hover:bg-white transition-colors"
+                >
+                  <Building2 className="w-4 h-4" />
+                  Facilities
+                </Link>
+                <Link
+                  to="/bookings"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
+                >
+                  <CalendarClock className="w-4 h-4" />
+                  Bookings
+                </Link>
+              </>
+            )}
             <Link
-              to="/catalogue"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/95 text-slate-900 text-sm font-semibold hover:bg-white transition-colors"
-            >
-              <Building2 className="w-4 h-4" />
-              Facilities
-            </Link>
-            <Link
-              to="/bookings"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
-            >
-              <CalendarClock className="w-4 h-4" />
-              Bookings
-            </Link>
-            <Link
-              to="/tickets"
+              to={userRole === "TECHNICIAN" ? "/staff/tickets" : "/tickets"}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               <Wrench className="w-4 h-4" />
-              Tickets
+              {userRole === "TECHNICIAN" ? "Staff Tickets" : "Tickets"}
             </Link>
             <Link
               to="/notifications"
@@ -181,7 +192,27 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-700 shadow-sm"
+        >
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="font-bold text-sm">Failed to load dashboard data</p>
+            <p className="text-xs opacity-80 mt-0.5">{error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded-lg text-xs font-bold transition-colors"
+          >
+            Retry
+          </button>
+        </motion.div>
+      )}
+
+      <section className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${userRole !== "TECHNICIAN" ? 'xl:grid-cols-4' : ''}`}>
         <MetricCard
           title="Total Tickets"
           value={loading ? "..." : stats.totalTickets}
@@ -198,22 +229,26 @@ export default function DashboardPage() {
           tone="blue"
           delay={0.1}
         />
-        <MetricCard
-          title="Resources"
-          value={loading ? "..." : stats.totalResources}
-          subtitle="Facilities and assets"
-          icon={<Building2 className="w-5 h-5" />}
-          tone="cyan"
-          delay={0.15}
-        />
-        <MetricCard
-          title="Active Resources"
-          value={loading ? "..." : stats.activeResources}
-          subtitle={`${resourceAvailability}% availability`}
-          icon={<CheckCircle2 className="w-5 h-5" />}
-          tone="green"
-          delay={0.2}
-        />
+        {userRole !== "TECHNICIAN" && (
+          <>
+            <MetricCard
+              title="Resources"
+              value={loading ? "..." : stats.totalResources}
+              subtitle="Facilities and assets"
+              icon={<Building2 className="w-5 h-5" />}
+              tone="cyan"
+              delay={0.15}
+            />
+            <MetricCard
+              title="Active Resources"
+              value={loading ? "..." : stats.activeResources}
+              subtitle={`${resourceAvailability}% availability`}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              tone="green"
+              delay={0.2}
+            />
+          </>
+        )}
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -232,25 +267,29 @@ export default function DashboardPage() {
               description="Create incidents, assign technicians, update workflow status, and manage comments."
               icon={<Wrench className="w-5 h-5 text-blue-700" />}
               linkText="Go to Tickets"
-              to="/tickets"
+              to={userRole === "TECHNICIAN" ? "/staff/tickets" : "/tickets"}
               delay={0.22}
             />
-            <ModuleCard
-              title="Facilities & Assets"
-              description="Maintain lecture halls, labs, equipment, and availability status for operations."
-              icon={<Building2 className="w-5 h-5 text-cyan-700" />}
-              linkText="Open Catalogue"
-              to="/catalogue"
-              delay={0.26}
-            />
-            <ModuleCard
-              title="Booking Management"
-              description="Handle booking requests and workflow transitions across campus resources."
-              icon={<CalendarClock className="w-5 h-5 text-amber-700" />}
-              linkText="View Bookings"
-              to="/bookings"
-              delay={0.3}
-            />
+            {userRole !== "TECHNICIAN" && (
+              <>
+                <ModuleCard
+                  title="Facilities & Assets"
+                  description="Maintain lecture halls, labs, equipment, and availability status for operations."
+                  icon={<Building2 className="w-5 h-5 text-cyan-700" />}
+                  linkText="Open Catalogue"
+                  to="/catalogue"
+                  delay={0.26}
+                />
+                <ModuleCard
+                  title="Booking Management"
+                  description="Handle booking requests and workflow transitions across campus resources."
+                  icon={<CalendarClock className="w-5 h-5 text-amber-700" />}
+                  linkText="View Bookings"
+                  to="/bookings"
+                  delay={0.3}
+                />
+              </>
+            )}
             <ModuleCard
               title="Notifications"
               description="Review system alerts for ticket changes, comments, and approvals."
@@ -285,20 +324,22 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-sm mb-1.5">
-                <span className="text-slate-600">Resource availability</span>
-                <span className="font-semibold text-slate-900">{resourceAvailability}%</span>
+            {userRole !== "TECHNICIAN" && (
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-slate-600">Resource availability</span>
+                  <span className="font-semibold text-slate-900">{resourceAvailability}%</span>
+                </div>
+                <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${resourceAvailability}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+                    className="h-full bg-gradient-to-r from-emerald-600 to-green-500"
+                  />
+                </div>
               </div>
-              <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${resourceAvailability}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-                  className="h-full bg-gradient-to-r from-emerald-600 to-green-500"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="rounded-xl border border-slate-200 p-4 bg-slate-50">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Note</p>

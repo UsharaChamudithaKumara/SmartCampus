@@ -24,7 +24,7 @@ public class ResourceController {
 
     // 2. GET Endpoint: To retrieve the catalogue (supports search/filtering)
     @GetMapping
-    public List<Resource> getAllResources(@RequestParam(required = false) String type) {
+    public List<Resource> getAllResources(@RequestParam(value = "type", required = false) String type) {
         if (type != null) {
             return resourceService.getResourcesByType(type);
         }
@@ -33,14 +33,14 @@ public class ResourceController {
 
     // 3. PUT Endpoint: To update metadata or status (ACTIVE / OUT_OF_SERVICE)
     @PutMapping("/{id}")
-    public ResponseEntity<Resource> updateResource(@PathVariable String id, @RequestBody Resource details) {
+    public ResponseEntity<Resource> updateResource(@PathVariable("id") String id, @RequestBody Resource details) {
         Resource updatedResource = resourceService.updateResource(id, details);
         return updatedResource != null ? ResponseEntity.ok(updatedResource) : ResponseEntity.notFound().build();
     }
 
     // 4. DELETE Endpoint: To remove a resource from the system
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteResource(@PathVariable String id) {
+    public ResponseEntity<Void> deleteResource(@PathVariable("id") String id) {
         resourceService.deleteResource(id);
         return ResponseEntity.noContent().build();
     }

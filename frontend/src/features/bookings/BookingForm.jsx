@@ -32,7 +32,7 @@ export default function BookingForm({ resources = [], onSuccess }) {
       onSuccess?.();
       setForm({ resourceId: "", date: "", startTime: "", endTime: "", purpose: "", expectedAttendees: 1 });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create booking.");
+      setError(err.message || "Failed to create booking.");
     } finally {
       setLoading(false);
     }

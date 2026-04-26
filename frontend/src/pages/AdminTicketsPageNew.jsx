@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchTickets, assignTechnician, adminCloseTicket } from "../api";
+import { fetchTickets, fetchTicketById, assignTechnician, adminCloseTicket } from "../api";
 import TechnicianSelectionModal from "../components/TechnicianSelectionModal";
+
+import TicketCommentsModal from "../components/TicketCommentsModal";
+
 import { Ticket, AlertCircle, Clock, CheckCircle2 } from "lucide-react";
+
 
 const STATUS_COLORS = {
   OPEN: { bg: "#fef3c7", text: "#b45309" },
@@ -18,6 +22,8 @@ export default function AdminTicketsPageNew() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showTechModal, setShowTechModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [commentsTicket, setCommentsTicket] = useState(null);
 
   const loadTickets = async () => {
     try {
@@ -172,14 +178,23 @@ export default function AdminTicketsPageNew() {
                     }}
                     style={styles.assignBtn}
                   >
-                    🔧 Assign Technician
+                    🔧 Assign
                   </button>
                 )}
                 {ticket.status === "RESOLVED" && (
                   <button onClick={() => handleCloseTicket(ticket.id)} style={styles.closeBtn}>
-                    ✓ Close Ticket
+                    ✓ Close
                   </button>
                 )}
+                <button
+                  onClick={() => {
+                    setCommentsTicket(ticket);
+                    setShowCommentsModal(true);
+                  }}
+                  style={{ ...styles.closeBtn, background: "#6366f1", color: "#fff" }}
+                >
+                  💬 Comments ({ticket.comments?.length || 0})
+                </button>
               </div>
             </div>
           ))
@@ -194,6 +209,28 @@ export default function AdminTicketsPageNew() {
         }}
         onSelect={handleSelectTechnician}
         ticketType={selectedTicket ? tickets.find(t => t.id === selectedTicket)?.category : null}
+      />
+
+      <TicketCommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => {
+          setShowCommentsModal(false);
+          setCommentsTicket(null);
+          loadTickets();
+        }}
+        ticket={commentsTicket}
+        onCommentAdded={async () => {
+          // Keep modal open & refresh the ticket so the new comment is visible
+          if (commentsTicket?.id) {
+            try {
+              const freshTicket = await fetchTicketById(commentsTicket.id);
+              setCommentsTicket(freshTicket);
+            } catch (e) {
+              console.error("Failed to refresh ticket", e);
+            }
+          }
+          loadTickets();
+        }}
       />
     </div>
   );

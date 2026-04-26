@@ -7,14 +7,14 @@ import Footer from "./Footer";
 function UserNavigation({ userRole }) {
   const location = useLocation();
   // Technicians get access to Staff Tickets, others get standard tickets
-  const navItems = [
+  const navItems = userRole === "TECHNICIAN" ? [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/staff/tickets", label: "Staff Tickets" },
+  ] : [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "My Bookings" },
-    {
-      path: userRole === "TECHNICIAN" ? "/staff/tickets" : "/tickets",
-      label: userRole === "TECHNICIAN" ? "Staff Tickets" : "My Tickets",
-    },
+    { path: "/tickets", label: "My Tickets" },
     { path: "/notifications", label: "Notifications" },
   ];
 
