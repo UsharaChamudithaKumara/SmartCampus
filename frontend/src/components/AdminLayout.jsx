@@ -96,9 +96,9 @@ export default function AdminLayout({ userEmail, onLogout }) {
             </Link>
 
             <div className="relative group">
-              <button className="h-9 w-9 flex items-center justify-center bg-blue-600 text-white font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all shadow-sm" title={identityLabel}>
+              <Link to="/profile" className="h-9 w-9 flex items-center justify-center bg-blue-600 text-white font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all shadow-sm cursor-pointer" title={identityLabel}>
                 {initials}
-              </button>
+              </Link>
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-slate-100 divide-y divide-slate-100">
                 <div className="px-4 py-3">
                   <p className="text-sm font-semibold text-slate-900 truncate">{safeName || "Admin User"}</p>
