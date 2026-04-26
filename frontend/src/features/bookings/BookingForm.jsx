@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { createBooking } from "./bookingService";
+import { AlertCircle } from "lucide-react";
 
-export default function BookingForm({ onSuccess }) {
+export default function BookingForm({ resources = [], onSuccess }) {
   const [form, setForm] = useState({
     resourceId: "",
     date: "",
@@ -38,55 +39,109 @@ export default function BookingForm({ onSuccess }) {
   };
 
   return (
-    <div style={styles.card}>
-      <h2 style={styles.title}>Request a Booking</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={handleSubmit} style={styles.form}>
-
-        <label style={styles.label}>Resource ID</label>
-        <input name="resourceId" value={form.resourceId} onChange={handleChange}
-          placeholder="e.g. room-101" required style={styles.input} />
-
-        <label style={styles.label}>Date</label>
-        <input type="date" name="date" value={form.date} onChange={handleChange}
-          min={new Date().toISOString().split("T")[0]} required style={styles.input} />
-
-        <div style={styles.row}>
-          <div style={{ flex: 1 }}>
-            <label style={styles.label}>Start Time</label>
-            <input type="time" name="startTime" value={form.startTime}
-              onChange={handleChange} required style={styles.input} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={styles.label}>End Time</label>
-            <input type="time" name="endTime" value={form.endTime}
-              onChange={handleChange} required style={styles.input} />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <p>{error}</p>
         </div>
+      )}
+      
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Resource</label>
+        <select
+          name="resourceId"
+          value={form.resourceId}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+        >
+          <option value="">-- Select a resource --</option>
+          {resources.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name} ({r.type}) - {r.location}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <label style={styles.label}>Purpose</label>
-        <textarea name="purpose" value={form.purpose} onChange={handleChange}
-          placeholder="Describe the purpose..." required rows={3} style={styles.input} />
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+          min={new Date().toISOString().split("T")[0]}
+          required
+          className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+        />
+      </div>
 
-        <label style={styles.label}>Expected Attendees</label>
-        <input type="number" name="expectedAttendees" value={form.expectedAttendees}
-          onChange={handleChange} min={1} required style={styles.input} />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            value={form.startTime}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">End Time</label>
+          <input
+            type="time"
+            name="endTime"
+            value={form.endTime}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+          />
+        </div>
+      </div>
 
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? "Submitting..." : "Submit Booking Request"}
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Purpose</label>
+        <textarea
+          name="purpose"
+          value={form.purpose}
+          onChange={handleChange}
+          placeholder="Describe the purpose..."
+          required
+          rows={3}
+          className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white resize-none"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Expected Attendees</label>
+        <input
+          type="number"
+          name="expectedAttendees"
+          value={form.expectedAttendees}
+          onChange={handleChange}
+          min={1}
+          required
+          className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white"
+        />
+      </div>
+
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {loading ? (
+             "Submitting..."
+          ) : (
+            "Submit Booking Request"
+          )}
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }
-
-const styles = {
-  card: { background: "#fff", borderRadius: 12, padding: 28, maxWidth: 560, boxShadow: "0 2px 12px rgba(0,0,0,0.08)" },
-  title: { marginBottom: 20, fontSize: 20, fontWeight: 600, color: "#1e293b" },
-  form: { display: "flex", flexDirection: "column", gap: 12 },
-  label: { fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 2 },
-  input: { padding: "10px 12px", border: "1.5px solid #e2e8f0", borderRadius: 8, fontSize: 14, width: "100%", boxSizing: "border-box" },
-  row: { display: "flex", gap: 12 },
-  button: { marginTop: 8, padding: "12px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer" },
-  error: { background: "#fee2e2", color: "#dc2626", padding: "10px 14px", borderRadius: 8, fontSize: 14 },
-};

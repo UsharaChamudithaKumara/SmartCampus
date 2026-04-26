@@ -3,13 +3,9 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Link,
-  useLocation,
   Navigate,
   Outlet,
 } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Bell, UserCircle, LogOut, Building2 } from "lucide-react";
 
 import DashboardPage from "./pages/DashboardPage";
 import AdminConsolePage from "./pages/AdminConsolePage";
@@ -22,7 +18,10 @@ import CreateTicketPage from "./pages/CreateTicketPage";
 
 
 
+
 import ResourceForm from "./components/ResourceForm";
+
+
 
 import ManageResourcesPage from "./components/ManageResourcesPage";
 import LoginPage from "./pages/LoginPage";
@@ -33,54 +32,8 @@ import AdminTicketsPageNew from "./pages/AdminTicketsPageNew";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import BookingListPage from "./features/bookings/BookingListPage";
 import AdminBookingsPage from "./features/bookings/AdminBookingsPage";
-
-
-function Navigation({ userRole }) {
-  const location = useLocation();
-  const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
-  const navItems = [
-    { path: "/dashboard", label: "Dashboard" },
-    { path: userRole === "ADMIN" ? "/admin/facilities" : "/catalogue", label: "Facilities & Assets" },
-    { path: "/bookings", label: "Booking Management" },
-   
-    {
-  path:
-    userRole === "ADMIN"
-      ? "/admin/tickets"
-      : userRole === "TECHNICIAN"
-      ? "/staff/tickets"
-      : "/tickets",
-  label:
-    userRole === "ADMIN"
-      ? "Admin Tickets"
-      : userRole === "TECHNICIAN"
-      ? "Staff Tickets"
-      : "Ticket Management",
-},
-    { path: "/notifications", label: "Notifications" },
-  ];
-
-  return (
-    <nav className="flex items-center gap-1 overflow-x-auto">
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
-
-        return (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              isActive ? "text-blue-700 bg-blue-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-            }`}
-          >
-            {item.label}
-            {isActive && <motion.div layoutId="nav-indicator" className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600" />}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
+import UserLayout from "./components/UserLayout";
+import AdminLayout from "./components/AdminLayout";
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -93,6 +46,7 @@ function PlaceholderPage({ title, description }) {
     </div>
   );
 }
+
 
 function AppShell({ userEmail, userRole, onLogout }) {
   const isStaff = userRole === "ADMIN" || userRole === "TECHNICIAN";
@@ -166,11 +120,13 @@ function AppShell({ userEmail, userRole, onLogout }) {
   );
 }
 
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastRole, setLastRole] = useState(null);
 
   function handleLoginSuccess(email) {
     setIsLoggedIn(true);
@@ -189,6 +145,7 @@ export default function App() {
   }, []);
 
   function handleLogout() {
+    setLastRole(userRole);
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userEmail");
     localStorage.removeItem("token");
@@ -207,11 +164,11 @@ export default function App() {
         </div>
       ) : (
         <Routes>
-          <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/admin-login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
-          <Route path="/signup" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
-          <Route element={isLoggedIn ? <AppShell userEmail={userEmail} userRole={userRole} onLogout={handleLogout} /> : <Navigate to="/login" replace />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/login" element={isLoggedIn ? <Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace /> : <LoginPage onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/admin-login" element={isLoggedIn ? <Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace /> : <AdminLoginPage onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/signup" element={isLoggedIn ? <Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace /> : <SignupPage />} />
+          <Route element={isLoggedIn ? (userRole === "ADMIN" ? <AdminLayout userEmail={userEmail} onLogout={handleLogout} /> : <UserLayout userEmail={userEmail} userRole={userRole} onLogout={handleLogout} />) : <Navigate to={lastRole === "ADMIN" ? "/admin-login" : "/login"} replace />}>
+            <Route path="/" element={<Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/admin" element={<AdminConsolePage />} />
             <Route path="/tickets" element={<TicketsPage />} />
@@ -229,7 +186,7 @@ export default function App() {
               path="/notifications"
               element={<PlaceholderPage title="Notifications" description="Notification center for ticket updates, comments, and booking status updates." />}
             />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to={userRole === "ADMIN" ? "/admin" : "/dashboard"} replace />} />
           </Route>
         </Routes>
       )}
