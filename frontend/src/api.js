@@ -3,6 +3,8 @@
 const BASE_TICKETS = '/api/tickets';
 const BASE_RESOURCES = '/api/resources';
 const AUTH_BASE = '/api/auth';
+const BASE_BOOKINGS = '/api/bookings';
+const BASE_NOTIFICATIONS = '/api/notifications';
 
 function tryParseJson(text) {
   try {
@@ -17,14 +19,19 @@ async function parseResponseOrThrow(res, fallbackMessage) {
   const parsed = tryParseJson(text);
 
   if (!res.ok) {
-    throw new Error(parsed?.error || text || fallbackMessage);
+    const errorMsg = parsed?.message || parsed?.error || text || fallbackMessage;
+    throw new Error(errorMsg);
+  }
+
+  if (text && parsed === null) {
+    throw new Error(`Invalid JSON response from server: ${text.substring(0, 100)}`);
   }
 
   if (parsed && parsed.error) {
     throw new Error(parsed.error);
   }
 
-  return parsed ?? text;
+  return parsed;
 }
 
 // Tickets API
@@ -40,15 +47,15 @@ export async function fetchTicketsByUser(userId) {
 }
 
 export async function fetchVisibleTickets() {
-  const role = localStorage.getItem('userRole');
-  const userEmail = localStorage.getItem('userEmail');
+  const role = sessionStorage.getItem('userRole');
+  const userEmail = sessionStorage.getItem('userEmail');
 
   if (role === 'ADMIN' || role === 'TECHNICIAN') {
     return fetchTickets();
   }
 
   if (!userEmail) {
-    return [];
+    throw new Error('User email not found in session. Please log in again.');
   }
 
   return fetchTicketsByUser(userEmail);
@@ -165,7 +172,7 @@ export async function uploadImages(ticketId, files) {
 }
 
 // Auth API
-export async function signup(firstName, lastName, username, itNumber, studentEmail, nicNumber, password, confirmPassword, profilePhoto) {
+export async function signup(firstName, lastName, username, itNumber, studentEmail, nicNumber, password, confirmPassword, profilePhoto, role, technicianType) {
   const res = await fetch(`${AUTH_BASE}/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -179,6 +186,8 @@ export async function signup(firstName, lastName, username, itNumber, studentEma
       password,
       confirmPassword,
       profilePhoto,
+      role,
+      technicianType,
     }),
   });
 
@@ -314,6 +323,55 @@ export async function deleteResource(id) {
   return true;      
 }
 
+// Bookings API
+export async function createBooking(booking) {
+  const userEmail = sessionStorage.getItem('userEmail') || '';
+  const userId = sessionStorage.getItem('userEmail') || '';
+  const res = await fetch(BASE_BOOKINGS, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Id': userId,
+      'X-User-Email': userEmail,
+    },
+    body: JSON.stringify(booking),
+  });
+  return parseResponseOrThrow(res, 'Failed to create booking');
+}
+
+export async function fetchMyBookings() {
+  const userId = sessionStorage.getItem('userEmail') || '';
+  const res = await fetch(`${BASE_BOOKINGS}/my`, {
+    headers: {
+      'X-User-Id': userId,
+    },
+  });
+  return parseResponseOrThrow(res, 'Failed to fetch bookings');
+}
+
+// Notifications API
+export async function fetchNotifications(userEmail) {
+  const safeEmail = encodeURIComponent(userEmail || '');
+  const res = await fetch(`${BASE_NOTIFICATIONS}?userEmail=${safeEmail}`);
+  return parseResponseOrThrow(res, 'Failed to fetch notifications');
+}
+
+export async function markNotificationRead(id) {
+  const res = await fetch(`${BASE_NOTIFICATIONS}/${id}/read`, {
+    method: 'PUT',
+  });
+  return parseResponseOrThrow(res, 'Failed to mark notification as read');
+}
+
+export async function markAllNotificationsRead(userEmail) {
+  const res = await fetch(`${BASE_NOTIFICATIONS}/read-all`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userEmail }),
+  });
+  return parseResponseOrThrow(res, 'Failed to mark all notifications as read');
+}
+
 const api = {
   fetchTickets,
   fetchTicketsByUser,
@@ -340,6 +398,11 @@ const api = {
   createResource,
   updateResource,
   deleteResource,
+  createBooking,
+  fetchMyBookings,
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
 };
 
 export default api;

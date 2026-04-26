@@ -104,10 +104,10 @@ export function TicketList({ refreshKey = 0 }) {
   const [actionMessage, setActionMessage] = useState(null)
   const [saving, setSaving] = useState(false)
 
-  const role = localStorage.getItem('userRole')
-  const currentUserId = localStorage.getItem('userEmail') || ''
-  const currentUserName = localStorage.getItem('userName') || currentUserId
-  const canManage = true;
+  const role = sessionStorage.getItem('userRole')
+  const currentUserId = sessionStorage.getItem('userEmail') || ''
+  const currentUserName = sessionStorage.getItem('userName') || currentUserId
+  const canManage = role === 'ADMIN' || role === 'TECHNICIAN';
 
   async function load() {
     setLoading(true)
@@ -238,7 +238,7 @@ export function TicketList({ refreshKey = 0 }) {
     try {
       await addTicketComment(selectedTicket.id, {
         authorId: currentUserId,
-        authorName: currentUserName,
+        authorName: role === 'ADMIN' ? 'Admin' : currentUserName,
         text: commentText.trim(),
       })
       setCommentText('')
@@ -450,7 +450,20 @@ export function TicketList({ refreshKey = 0 }) {
   {canManage ? (
     <select
       value={ticket.status}
-      onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
+      onChange={async (e) => {
+        const newStatus = e.target.value
+        try {
+          await updateTicketStatus(ticket.id, newStatus)
+          setTickets((prev) =>
+            prev.map((t) =>
+              t.id === ticket.id ? { ...t, status: newStatus } : t
+            )
+          )
+          setLocalRefresh((v) => v + 1)
+        } catch (err) {
+          setActionError(err?.message || 'Failed to update status')
+        }
+      }}
       className="border rounded px-2 py-1 text-sm"
     >
       <option value="OPEN">OPEN</option>
@@ -706,7 +719,7 @@ export function TicketList({ refreshKey = 0 }) {
                       <button
                         type="button"
                         onClick={handleAddComment}
-                        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                         disabled={saving}
                       >
                         <CornerRightUp className="w-4 h-4" />
@@ -773,7 +786,7 @@ export function TicketList({ refreshKey = 0 }) {
                           type="button"
                           onClick={handleStatusSave}
                           disabled={saving}
-                          className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
                           Save Status
                         </button>

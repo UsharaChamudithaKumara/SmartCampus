@@ -8,12 +8,12 @@ import TechnicianLoginStatus from "../components/TechnicianLoginStatus";
 import { googleLogin, login } from "../api";
 
 const TECHNICIAN_TYPES = [
-  { value: "PLUMBER", label: "Plumber" },
-  { value: "ELECTRICIAN", label: "Electrician" },
-  { value: "CARPENTER", label: "Carpenter" },
-  { value: "PAINTER", label: "Painter" },
-  { value: "HVAC", label: "HVAC Technician" },
-  { value: "GENERAL", label: "General Maintenance" },
+  { value: 'PLUMBER', label: 'Plumber' },
+  { value: 'ELECTRICIAN', label: 'Electrician' },
+  { value: 'CARPENTER', label: 'Carpenter' },
+  { value: 'PAINTER', label: 'Painter' },
+  { value: 'HVAC', label: 'HVAC Technician' },
+  { value: 'GENERAL', label: 'General Maintenance' },
 ];
 
 export default function LoginPage({ onLoginSuccess }) {
@@ -61,11 +61,11 @@ export default function LoginPage({ onLoginSuccess }) {
       const safeEmail = (data.studentEmail || data.email || form.studentEmail || '').trim();
       const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', data.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
         onLoginSuccess(safeEmail);
@@ -112,11 +112,11 @@ export default function LoginPage({ onLoginSuccess }) {
       const safeEmail = (data.studentEmail || data.email || gmailFromToken || '').trim();
       const safeName = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || data.username || safeEmail;
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', safeEmail);
-      localStorage.setItem('userName', safeName);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('userEmail', safeEmail);
+      sessionStorage.setItem('userName', safeName);
+      sessionStorage.setItem('userRole', data.role);
+      sessionStorage.setItem('isLoggedIn', 'true');
 
       if (onLoginSuccess) {
         onLoginSuccess(safeEmail);
@@ -262,20 +262,22 @@ export default function LoginPage({ onLoginSuccess }) {
                   <ArrowLeft className="w-4 h-4" /> Back to role selection
                 </motion.button>
 
-                <motion.div
-                  variants={itemVariants}
-                  className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                >
-                  <p className="text-sm font-semibold text-slate-700">Google login</p>
-                  <p className="text-xs text-slate-500 mt-1">Use your Google account to sign in.</p>
-                  <div className="mt-3">
-                    <GoogleSignInButton
-                      clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-                      onCredential={(credential) => handleGoogleLogin(credential)}
-                      width={360}
-                    />
-                  </div>
-                </motion.div>
+                {selectedRole !== "TECHNICIAN" && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <p className="text-sm font-semibold text-slate-700">Google login</p>
+                    <p className="text-xs text-slate-500 mt-1">Use your Google account to sign in.</p>
+                    <div className="mt-3">
+                      <GoogleSignInButton
+                        clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+                        onCredential={(credential) => handleGoogleLogin(credential)}
+                        width={360}
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   {/* Email Input */}

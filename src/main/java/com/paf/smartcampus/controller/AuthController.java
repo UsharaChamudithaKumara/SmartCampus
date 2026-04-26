@@ -59,14 +59,29 @@ public class AuthController {
     @PostMapping("/signup")
     public Object signup(@Valid @RequestBody SignupRequest request) {
         try {
-            // Validate student number - must be 2 letters followed by 8 digits
-            if (request.getItNumber() == null || request.getItNumber().trim().isEmpty()) {
-                return new ErrorResponse("❌ Student number is required (format: 2 letters + 8 digits)");
+            // Extract role first so we can conditionally enforce student number
+            String role = request.getRole();
+            if (role == null || role.trim().isEmpty()) {
+                return new ErrorResponse("Role is required (STUDENT, LECTURER, or TECHNICIAN)");
             }
-            
-            String itNumber = request.getItNumber().trim().toUpperCase();
-            if (!itNumber.matches("^[A-Z]{2}\\d{8}$")) {
-                return new ErrorResponse("❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)");
+            role = role.trim().toUpperCase();
+            if (!role.matches("^(STUDENT|LECTURER|TECHNICIAN)$")) {
+                return new ErrorResponse("Invalid role. Must be STUDENT, LECTURER, or TECHNICIAN");
+            }
+
+            // Validate student number - only required for STUDENT role
+            String itNumber;
+            if ("STUDENT".equals(role)) {
+                if (request.getItNumber() == null || request.getItNumber().trim().isEmpty()) {
+                    return new ErrorResponse("❌ Student number is required (format: 2 letters + 8 digits)");
+                }
+                itNumber = request.getItNumber().trim().toUpperCase();
+                if (!itNumber.matches("^[A-Z]{2}\\d{8}$")) {
+                    return new ErrorResponse("❌ Student number must be 2 letters followed by 8 digits (e.g., IT23456789)");
+                }
+            } else {
+                // Technician / Lecturer - auto-generate an internal employee ID
+                itNumber = "EMP" + System.currentTimeMillis();
             }
 
             // Validate email format
@@ -124,6 +139,19 @@ public class AuthController {
                 return new ErrorResponse("❌ NIC number already registered");
             }
 
+            // Validate technician type if role is TECHNICIAN
+            String technicianType = null;
+            if ("TECHNICIAN".equals(role)) {
+                technicianType = request.getTechnicianType();
+                if (technicianType == null || technicianType.trim().isEmpty()) {
+                    return new ErrorResponse("Technician type is required for TECHNICIAN role");
+                }
+                technicianType = technicianType.trim().toUpperCase();
+                if (!technicianType.matches("^(IT|ELECTRICIAN|PLUMBER|CARPENTER|HVAC|PAINTER|GENERAL)$")) {
+                    return new ErrorResponse("Invalid technician type");
+                }
+            }
+
             // Create new user
             User newUser = new User(
                     studentEmail,
@@ -135,10 +163,24 @@ public class AuthController {
                     request.getNicNumber(),
                     request.getProfilePhoto()
             );
+            newUser.setRole(role);
+            newUser.setTechnicianType(technicianType);
 
             userRepository.save(newUser);
 
-            // Generate token
+            // Technicians need admin approval before logging in
+            if ("TECHNICIAN".equals(role)) {
+                TechnicianLoginRequest loginRequest = new TechnicianLoginRequest(
+                        newUser.getStudentEmail(),
+                        newUser.getFirstName() + " " + newUser.getLastName(),
+                        technicianType
+                );
+                loginRequest.setStatus("PENDING");
+                technicianLoginRequestRepository.save(loginRequest);
+                return new SuccessResponse("Technician registration submitted. Please wait for admin approval before logging in.");
+            }
+
+            // Generate token for non-technician users
             String token = jwtUtil.generateToken(newUser.getStudentEmail(), newUser.getRole());
 
             return new AuthResponse(
@@ -182,7 +224,7 @@ public class AuthController {
                 }
 
                 techType = techType.trim().toUpperCase();
-                if (!techType.matches("^(HARDWARE|SOFTWARE|NETWORK|GENERAL)$")) {
+                if (!techType.matches("^(IT|ELECTRICIAN|PLUMBER|CARPENTER|HVAC|PAINTER|GENERAL)$")) {
                     return new ErrorResponse("❌ Invalid technician type");
                 }
             }
@@ -474,7 +516,7 @@ public class AuthController {
      * GET /api/auth/validate?token=jwt-token
      */
     @GetMapping("/validate")
-    public Object validateToken(@RequestParam String token) {
+    public Object validateToken(@RequestParam("token") String token) {
         boolean isValid = jwtUtil.isTokenValid(token);
         if (isValid) {
             return new SuccessResponse("✅ Token is valid");

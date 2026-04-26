@@ -7,14 +7,14 @@ import Footer from "./Footer";
 function UserNavigation({ userRole }) {
   const location = useLocation();
   // Technicians get access to Staff Tickets, others get standard tickets
-  const navItems = [
+  const navItems = userRole === "TECHNICIAN" ? [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/staff/tickets", label: "Staff Tickets" },
+  ] : [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/catalogue", label: "Facilities & Assets" },
     { path: "/bookings", label: "My Bookings" },
-    {
-      path: userRole === "TECHNICIAN" ? "/staff/tickets" : "/tickets",
-      label: userRole === "TECHNICIAN" ? "Staff Tickets" : "My Tickets",
-    },
+    { path: "/tickets", label: "My Tickets" },
     { path: "/notifications", label: "Notifications" },
   ];
 
@@ -41,8 +41,8 @@ function UserNavigation({ userRole }) {
 
 export default function UserLayout({ userEmail, userRole, onLogout }) {
   const isStaff = userRole === "TECHNICIAN";
-  const storedEmail = localStorage.getItem("userEmail");
-  const storedName = localStorage.getItem("userName");
+  const storedEmail = sessionStorage.getItem("userEmail");
+  const storedName = sessionStorage.getItem("userName");
   const rawEmail = userEmail || storedEmail || "";
   const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
   const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
@@ -75,10 +75,10 @@ export default function UserLayout({ userEmail, userRole, onLogout }) {
                 </div>
               )}
 
-              <button className="p-2 hover:bg-slate-100 rounded-full relative" title="Notifications">
+              <Link to="/notifications" className="p-2 hover:bg-slate-100 rounded-full relative" title="Notifications">
                 <Bell className="w-5 h-5 text-slate-600" />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              </Link>
 
               <div className="relative group">
                 <button className="h-9 w-9 flex items-center justify-center bg-blue-100 text-blue-700 font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all" title={identityLabel}>

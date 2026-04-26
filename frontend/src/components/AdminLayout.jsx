@@ -7,10 +7,10 @@ function AdminSidebar() {
   const location = useLocation();
   const navItems = [
     { path: "/admin", label: "Admin Console", icon: LayoutDashboard },
-    { path: "/admin/facilities", label: "Facilities & Assets", icon: FolderKanban },
-    { path: "/bookings", label: "Booking Management", icon: CalendarRange },
-    { path: "/admin/tickets", label: "Admin Tickets", icon: Ticket },
-    { path: "/notifications", label: "Notifications", icon: BellRing },
+    { path: "/admin/facilities", label: "Facilities & Asset Management", icon: FolderKanban },
+    { path: "/admin/bookings", label: "Booking Management", icon: CalendarRange },
+    { path: "/admin/tickets", label: "Ticket Management", icon: Ticket },
+    { path: "/notifications", label: "Notification Management", icon: BellRing },
   ];
 
   return (
@@ -30,16 +30,15 @@ function AdminSidebar() {
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(`${item.path}/`));
             const Icon = item.icon;
-            
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all relative ${
-                  isActive 
-                    ? "text-white bg-blue-600 shadow-md shadow-blue-900/50" 
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all relative ${isActive
+                    ? "text-white bg-blue-600 shadow-md shadow-blue-900/50"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-500"}`} />
                 {item.label}
@@ -48,7 +47,7 @@ function AdminSidebar() {
           })}
         </nav>
       </div>
-      
+
       <div className="mt-auto p-6">
         <div className="bg-slate-800 rounded-xl p-4 border border-slate-700/50">
           <p className="text-xs text-slate-400 mb-2">System Status</p>
@@ -66,35 +65,35 @@ function AdminSidebar() {
 }
 
 export default function AdminLayout({ userEmail, onLogout }) {
-  const storedEmail = localStorage.getItem("userEmail");
-  const storedName = localStorage.getItem("userName");
+  const storedEmail = sessionStorage.getItem("userEmail");
+  const storedName = sessionStorage.getItem("userName");
   const rawEmail = userEmail || storedEmail || "";
   const safeEmail = rawEmail && rawEmail !== "undefined" ? rawEmail.trim() : "";
   const safeName = storedName && storedName !== "undefined" && storedName !== "undefined undefined" ? storedName : "";
   const identityLabel = safeName || safeEmail || "Admin";
-  const initials = safeName 
-    ? safeName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-    : safeEmail 
-      ? safeEmail.substring(0, 2).toUpperCase() 
+  const initials = safeName
+    ? safeName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+    : safeEmail
+      ? safeEmail.substring(0, 2).toUpperCase()
       : "A";
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <AdminSidebar />
-      
+
       {/* Main Content Wrapper - offset for sidebar */}
       <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
         <header className="bg-white border-b sticky top-0 z-30 shadow-sm h-16 flex items-center justify-between px-6">
           <h1 className="text-lg font-bold text-slate-800 hidden sm:block">Control Center</h1>
-          
+
           <div className="flex items-center gap-4 ml-auto">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold uppercase tracking-wide">
               Administrator
             </div>
 
-            <button className="p-2 hover:bg-slate-100 rounded-full relative" title="Alerts">
+            <Link to="/notifications" className="p-2 hover:bg-slate-100 rounded-full relative" title="Alerts">
               <Bell className="w-5 h-5 text-slate-600" />
-            </button>
+            </Link>
 
             <div className="relative group">
               <button className="h-9 w-9 flex items-center justify-center bg-blue-600 text-white font-bold text-sm rounded-full ring-2 ring-white hover:ring-blue-100 transition-all shadow-sm" title={identityLabel}>

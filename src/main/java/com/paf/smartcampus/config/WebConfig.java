@@ -10,7 +10,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String uploadPath = System.getProperty("user.dir") + "/uploads/";
+        // Ensure path uses forward slashes and starts with file:///
+        String location = "file:" + uploadPath.replace("\\", "/");
+        if (!location.endsWith("/")) location += "/";
+        
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath);
+                .addResourceLocations(location);
     }
 }

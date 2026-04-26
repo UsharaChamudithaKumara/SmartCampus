@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TicketForm({ onCreated }) {
   const navigate = useNavigate();
-  const currentUserId = localStorage.getItem("userEmail") || "";
+  const currentUserId = sessionStorage.getItem("userEmail") || "";
 
   const [form, setForm] = useState({
     title: "",
