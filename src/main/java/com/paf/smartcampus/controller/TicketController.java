@@ -127,18 +127,18 @@ public class TicketController {
             t.setUpdatedAt(LocalDateTime.now());
             repo.save(t);
 
-            return "✅ Image uploaded successfully";
+            return " Image uploaded successfully";
 
         } catch (IOException e) {
-            return "❌ Upload failed: " + e.getMessage();
+            return " Upload failed: " + e.getMessage();
         }
     }
 
     // Multi-file upload (max 3)
     @PostMapping("/{id}/uploads")
     public String uploadImages(@PathVariable("id") String id, @RequestParam("files") MultipartFile[] files) {
-        if (files == null || files.length == 0) return "❌ No files provided";
-        if (files.length > 3) return "❌ Maximum 3 images allowed";
+        if (files == null || files.length == 0) return " No files provided";
+        if (files.length > 3) return " Maximum 3 images allowed";
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
             File dir = new File(uploadDir);
@@ -153,9 +153,9 @@ public class TicketController {
             }
             t.setUpdatedAt(LocalDateTime.now());
             repo.save(t);
-            return "✅ Images uploaded successfully";
+            return " Images uploaded successfully";
         } catch (IOException e) {
-            return "❌ Upload failed: " + e.getMessage();
+            return " Upload failed: " + e.getMessage();
         }
     }
 
@@ -164,13 +164,13 @@ public class TicketController {
     public String updateStatus(@PathVariable("id") String id, @RequestParam("status") String status, @RequestParam(value = "reason", required = false) String reason) {
 
         if (!isValidStatus(status)) {
-            return "❌ Invalid status!";
+            return " Invalid status!";
         }
 
         Ticket t = repo.findById(id).orElseThrow();
         if ("REJECTED".equals(status)) {
             if (reason == null || reason.isBlank()) {
-                return "❌ Rejected status requires a reason";
+                return " Rejected status requires a reason";
             }
             t.setRejectedReason(reason);
         } else {
@@ -188,7 +188,7 @@ public class TicketController {
             emailService.sendTicketStatusUpdateEmail(recipient, t.getTitle(), status);
         }
 
-        return "✅ Status updated successfully";
+        return " Status updated successfully";
     }
 
     private void notifyTicketRejected(Ticket ticket, String reason) {
@@ -246,7 +246,7 @@ public class TicketController {
     public Object technicianResolve(@PathVariable("id") String id, @RequestParam("notes") String notes) {
         Ticket t = repo.findById(id).orElseThrow();
         if (t.getStatus() == null || (!t.getStatus().equals("IN_PROGRESS") && !t.getStatus().equals("OPEN"))) {
-            return "❌ Only IN_PROGRESS or OPEN tickets can be marked RESOLVED";
+            return " Only IN_PROGRESS or OPEN tickets can be marked RESOLVED";
         }
         t.setResolutionNotes(notes);
         t.setStatus("RESOLVED");
@@ -259,7 +259,7 @@ public class TicketController {
     public Object adminClose(@PathVariable("id") String id) {
         Ticket t = repo.findById(id).orElseThrow();
         if (!"RESOLVED".equals(t.getStatus())) {
-            return "❌ Only RESOLVED tickets can be closed. Current status: " + t.getStatus();
+            return " Only RESOLVED tickets can be closed. Current status: " + t.getStatus();
         }
         t.setStatus("CLOSED");
         t.setUpdatedAt(LocalDateTime.now());
@@ -282,7 +282,7 @@ public class TicketController {
         
         // Notify the ticket creator if they didn't write this comment
         if (t.getUserId() != null && !t.getUserId().isBlank() && !t.getUserId().equals(authorId)) {
-            System.out.println("📧 EMAIL SENT TO STUDENT: " + t.getUserId() + " - Subject: New Comment on Ticket");
+            System.out.println(" EMAIL SENT TO STUDENT: " + t.getUserId() + " - Subject: New Comment on Ticket");
             notificationService.create(
                     t.getUserId(),
                     "NEW_COMMENT",
@@ -294,7 +294,7 @@ public class TicketController {
 
         // Notify the assigned technician if they didn't write this comment
         if (t.getAssignedTo() != null && !t.getAssignedTo().isBlank() && !t.getAssignedTo().equals(authorId)) {
-            System.out.println("📧 EMAIL SENT TO TECHNICIAN: " + t.getAssignedTo() + " - Subject: New Comment on Assigned Ticket");
+            System.out.println(" EMAIL SENT TO TECHNICIAN: " + t.getAssignedTo() + " - Subject: New Comment on Assigned Ticket");
             notificationService.create(
                     t.getAssignedTo(),
                     "NEW_COMMENT",
@@ -311,12 +311,12 @@ public class TicketController {
     @PutMapping("/{id}/comments/{commentId}")
     public Object editComment(@PathVariable("id") String id, @PathVariable("commentId") String commentId, @RequestBody Map<String, String> payload) {
         Ticket t = repo.findById(id).orElseThrow();
-        if (t.getComments() == null) return "❌ No comments";
+        if (t.getComments() == null) return " No comments";
         for (Comment c : t.getComments()) {
             if (c.getId().equals(commentId)) {
                 String authorId = payload.get("authorId");
                 if (authorId == null || !authorId.equals(c.getAuthorId())) {
-                    return "❌ Not authorized to edit this comment";
+                    return " Not authorized to edit this comment";
                 }
                 c.setText(payload.get("text"));
                 c.setUpdatedAt(new Date());
@@ -324,27 +324,27 @@ public class TicketController {
                 return repo.save(t);
             }
         }
-        return "❌ Comment not found";
+        return " Comment not found";
     }
 
     // DELETE comment (author-only)
     @DeleteMapping("/{id}/comments/{commentId}")
     public Object deleteComment(@PathVariable("id") String id, @PathVariable("commentId") String commentId, @RequestParam("authorId") String authorId) {
         Ticket t = repo.findById(id).orElseThrow();
-        if (t.getComments() == null) return "❌ No comments";
+        if (t.getComments() == null) return " No comments";
         Iterator<Comment> it = t.getComments().iterator();
         while (it.hasNext()) {
             Comment c = it.next();
             if (c.getId().equals(commentId)) {
                 if (!c.getAuthorId().equals(authorId)) {
-                    return "❌ Not authorized to delete this comment";
+                    return " Not authorized to delete this comment";
                 }
                 it.remove();
                 t.setUpdatedAt(LocalDateTime.now());
                 return repo.save(t);
             }
         }
-        return "❌ Comment not found";
+        return " Comment not found";
     }
 
     // Add or update resolution notes (sets status RESOLVED when notes provided)
