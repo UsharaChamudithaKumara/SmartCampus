@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, MapPin, Users, Info, XCircle } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
 const STATUS_CONFIG = {
   PENDING:   { bg: "bg-yellow-100", text: "text-yellow-800", icon: Clock },
@@ -15,6 +16,14 @@ export default function BookingCard({ booking, isAdmin, onApprove, onReject, onC
   const resourceMatch = resources.find(r => r.id === booking.resourceId);
   const resourceName = resourceMatch ? resourceMatch.name : booking.resourceId;
   const resourceSubtitle = resourceMatch ? `${resourceMatch.type} — ${resourceMatch.location}` : "";
+
+  const qrData = JSON.stringify({
+    id: booking.id,
+    resource: resourceName,
+    date: booking.date,
+    time: `${formatTime(booking.startTime)}-${formatTime(booking.endTime)}`,
+    user: booking.userEmail
+  });
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow h-full">
@@ -49,6 +58,16 @@ export default function BookingCard({ booking, isAdmin, onApprove, onReject, onC
             <strong className="block mb-0.5">Rejection reason:</strong> 
             {booking.rejectionReason}
           </div>
+        </div>
+      )}
+
+      {booking.status === "APPROVED" && (
+        <div className="mt-2 flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-100 rounded-xl">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Entry Pass</p>
+          <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+            <QRCodeSVG value={qrData} size={100} level="M" />
+          </div>
+          <p className="text-[10px] text-slate-400 mt-2 text-center">Scan at entrance for verification</p>
         </div>
       )}
 
