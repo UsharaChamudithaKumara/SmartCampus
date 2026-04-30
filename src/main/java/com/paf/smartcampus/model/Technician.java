@@ -12,7 +12,7 @@ public class Technician {
     
     private String email;
     private String name;
-    private String technicianType; // HARDWARE, SOFTWARE, NETWORK, GENERAL
+    private String technicianType;
     private int completedTickets; // Higher = more experienced
     private double rating; // 0-5, higher = better
     private boolean available;

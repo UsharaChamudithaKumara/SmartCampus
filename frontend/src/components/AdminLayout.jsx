@@ -10,7 +10,7 @@ function AdminSidebar() {
     { path: "/admin/facilities", label: "Facilities & Asset Management", icon: FolderKanban },
     { path: "/admin/bookings", label: "Booking Management", icon: CalendarRange },
     { path: "/admin/tickets", label: "Ticket Management", icon: Ticket },
-    { path: "/notifications", label: "Notification Management", icon: BellRing },
+   
   ];
 
   return (
